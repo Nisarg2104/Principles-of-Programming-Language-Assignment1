@@ -1,16 +1,17 @@
 #include "lexer.h"
-
+#include<stdbool.h>
 
 #define  NO_OF_RULES 100
 
-typedef struct{
+struct RHS_NODE{
     union{
-        terminal t;
-        non_terminal nt;
+        terminal term;
+        non_terminal non_term;
     };
     bool is_terminal;
-    rhs_node *next;
-} rhs_node;
+    struct RHS_NODE *next;
+};
+typedef struct RHS_NODE rhs_node;
 
 
 typedef struct{

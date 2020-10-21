@@ -1,7 +1,4 @@
 #include "lexer.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 
 void tokeniseSourcecode( char* filename, tokenStream *s) {
     FILE* code = fopen(filename,"r");
@@ -42,7 +39,7 @@ int main() {
     return 0;
 }
 
-terminal returnTerminalVal(char* lex) {
+non_terminal returnNonTerminalVal(char* lex) {
 
     if(!strcmp(lex,"PROGRAM"))
         return PROGRAM;
@@ -76,15 +73,15 @@ terminal returnTerminalVal(char* lex) {
     else if(!strcmp(lex,"JAGGED_INIT"))
         return JAGGED_INIT;
     else if(!strcmp(lex,"2D_INIT"))
-        return 2D_INIT;
+        return TD_INIT;
     else if(!strcmp(lex,"3D_INIT"))
-        return 3D_INIT;
+        return THD_INIT;
 
 
     else if(!strcmp(lex,"2D_VALS"))
-        return 2D_VALS;
+        return TD_VALS;
     else if(!strcmp(lex,"3D_VALS"))
-        return 3D_VALS;
+        return THD_VALS;
     else if(!strcmp(lex,"INT_LIST"))
         return INT_LIST;
     else if(!strcmp(lex,"INT_LIST_LIST"))
@@ -145,7 +142,7 @@ terminal returnTerminalVal(char* lex) {
     else if(!strcmp(lex,".."))
         return ddot;
     else if(!strcmp(lex,"R1"))
-        return R1;
+        return r1;
     else if(!strcmp(lex,"["))
         return sq_op;
     else if(!strcmp(lex,"]"))

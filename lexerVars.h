@@ -17,7 +17,9 @@ struct TOKEN
     terminal token_name;
     struct TOKEN* nextToken;
 };
-typedef struct TOKEN token
+typedef struct TOKEN tokenStream;
+
+void tokeniseSourcecode( char* filename, tokenStream *s);
 
 
 

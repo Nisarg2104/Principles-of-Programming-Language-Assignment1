@@ -1,0 +1,76 @@
+// keywords
+program, declare, list, of, variables, array, size, values, jagged, of, integer, real, boolean, R1, semicol, col, squarebq, num
+/*
+RBCL -> )
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+*/
+PROGRAM -> program RBOP RBCL CBOP STATEMENTS CBCL
+STATEMENTS -> STATEMENT STATEMENTS | STATEMENT
+STATEMENT -> DECLARE_STATEMENT | ASSIGN_STATEMENT
+DECLARE_STATEMENT -> SINGLE_DECLARE | MULTI_DECLARE
+SINGLE_DECLARE -> declare id col TYPE
+MULTI_DECLARE -> declare list of variables VAR_LIST col TYPE semicol
+TYPE -> PRIM_TYPE semicol | ARRAY
+ARRAY -> RECTANGULAR semicol | JAGGED
+PRIM_TYPE -> integer | boolean | real
+RECTANGULAR -> array ARRAY_RANGE of integer
+JAGGED -> jagged array SQOP num ddot num SQCL DIMS of integer semicol JAGGED_DIM_INIT
+JAGGED_DIM_INIT -> r1 SQOP num SQCL col size num col values CURLOP LIST_OF_JAGGED_VALS  CURLCL JAGGED_DIM_INIT | r1 SQOP num SQCL col size num col values CURLOP ______  CURLCL
+LIST_OF_JAGGED_VALS -> LIST_OF_VALUES semicol LIST_OF_JAGGED_VALS | LIST_OF_VALUES semicol
+LIST_OF_VALUES -> num | num LIST_OF_VALUES 
+DIMS-> SQOP SQCL | SQOP SQCL SQOP SQCL
+ARRAY_RANGE -> SQOP IDX ddot IDX SQCL ARRAY_RANGE | SQOP IDX ddot IDX SQCL
+IDX -> id | num
+VAR_LIST -> id MULT_ID
+MULT_ID -> id MULT_ID | id
+
+
+
+ASSIGN_STATEMENT -> id eqop EXPRESSION
+EXPRESSION -> EXPRESSION plus__op TERM | EXPRESSION minus_op TERM | TERM
+TERM -> TERM mult_op 
+
+
+
+
+
+
+
+
+
+
+declare a: 
+
+//doubts: jagged ma colon k semi colon
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// num square_brackets can't be called as keywords ?
+// in IDX if id is not integer // how to include that in grammar ?
+// can VAR_LIST have a single element ?
+// what is R1? can it be considered a keyword?

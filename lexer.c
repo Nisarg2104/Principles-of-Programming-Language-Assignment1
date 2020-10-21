@@ -32,12 +32,6 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     
 }
 
-// int main() {
-//     char filename[50] = "program.txt";
-//     tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
-//     tokeniseSourcecode(filename,head);
-//     return 0;
-// }
 
 non_terminal returnNonTerminalVal(char* lex) {
 
@@ -117,8 +111,10 @@ non_terminal returnNonTerminalVal(char* lex) {
         return AS_OP;
     else if(!strcmp(lex,"MD_OP"))
         return MD_OP;
+    else if(!strcmp(lex,"EPS"))
+        return EPS;
 
-    
+
 }
 terminal returnTerminalVal(char* lex) {
     if(!strcmp(lex,"program"))
@@ -173,6 +169,8 @@ terminal returnTerminalVal(char* lex) {
         return div_op;
     else if(!strcmp(lex,"="))
         return eq_op;
+    else if(!strcmp(lex,""))
+        return eps;
     for(int i=0;i<strlen(lex);i++) {
 
         if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {
@@ -180,5 +178,5 @@ terminal returnTerminalVal(char* lex) {
         }
     }
     return num;
-    
+
 }

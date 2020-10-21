@@ -44,11 +44,16 @@ void readGrammar(char* filename,cell_node *grammar) {
     }
 
 }
-
+void hardCodedRules()
+{
+    int arr[100][100];
+}
 int main() {
         grammar = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
-
-        char filename[50] = "grammar.txt";
-        readGrammar(filename,grammar);
+        char grammarname[50] = "grammar.txt";
+        readGrammar(grammarname,grammar);
+        char programname[50] = "program.txt";
+        tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
+        tokeniseSourcecode(programname,head);
         return 0;
 }

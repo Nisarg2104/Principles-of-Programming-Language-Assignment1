@@ -2,7 +2,7 @@
 #define MAX_VAR_NAME_LEN 50
 
 typedef enum {
-    integer,real
+    #include "terminals.txt"
 } terminal;
 
 typedef enum{

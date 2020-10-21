@@ -1,10 +1,11 @@
 #include "lexer.h"
 
+
 #define  NO_OF_RULES 100
 
 typedef struct{
     union{
-        token t;
+        terminal t;
         non_terminal nt;
     };
     bool is_terminal;
@@ -14,15 +15,12 @@ typedef struct{
 
 typedef struct{
     non_terminal lhs;
-    rhs_node first_rhs;
+    rhs_node* first_rhs;
 } cell_node;
 
 cell_node grammar[NO_OF_RULES];
 
-FILE *fp;
-fp = fopen("grammar.txt", "r");
-
-void readGrammar(FILE *fp,cell_node *grammar);
+void readGrammar(char* filename,cell_node *grammar);
 
 
 

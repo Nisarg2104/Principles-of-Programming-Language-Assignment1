@@ -1,75 +1,56 @@
-// keywords
-program, declare, list, of, variables, array, size, values, jagged, of, integer, real, boolean, R1, semicol, col, squarebq, num
-/*
-RBCL -> )
-
-
-
-
-
-
-
-
-
-
-
-
-
-*/
 PROGRAM -> program RBOP RBCL CBOP STATEMENTS CBCL
-STATEMENTS -> STATEMENT STATEMENTS | STATEMENT
-STATEMENT -> DECLARE_STATEMENT | ASSIGN_STATEMENT
-DECLARE_STATEMENT -> SINGLE_DECLARE | MULTI_DECLARE
+STATEMENTS -> STATEMENT STATEMENTS
+STATEMENTS -> STATEMENT
+STATEMENT -> DECLARE_STATEMENT
+STATEMENT -> ASSIGN_STATEMENT
+DECLARE_STATEMENT -> SINGLE_DECLARE
+DECLARE_STATEMENT -> MULTI_DECLARE
 SINGLE_DECLARE -> declare id col TYPE
 MULTI_DECLARE -> declare list of variables VAR_LIST col TYPE semicol
-TYPE -> PRIM_TYPE semicol | ARRAY
-ARRAY -> RECTANGULAR semicol | JAGGED
-PRIM_TYPE -> integer | boolean | real
+TYPE -> PRIM_TYPE semicol
+TYPE -> ARRAY
+ARRAY -> RECTANGULAR
+ARRAY -> JAGGED
+PRIM_TYPE -> integer
+PRIM_TYPE -> boolean
+PRIM_TYPE -> real
 RECTANGULAR -> array ARRAY_RANGE of integer
-JAGGED -> jagged array SQOP num ddot num SQCL DIMS of integer semicol JAGGED_DIM_INIT
-JAGGED_DIM_INIT -> r1 SQOP num SQCL col size num col values CURLOP LIST_OF_JAGGED_VALS  CURLCL JAGGED_DIM_INIT | r1 SQOP num SQCL col size num col values CURLOP ______  CURLCL
-LIST_OF_JAGGED_VALS -> LIST_OF_VALUES semicol LIST_OF_JAGGED_VALS | LIST_OF_VALUES semicol
-LIST_OF_VALUES -> num | num LIST_OF_VALUES 
-DIMS-> SQOP SQCL | SQOP SQCL SQOP SQCL
-ARRAY_RANGE -> SQOP IDX ddot IDX SQCL ARRAY_RANGE | SQOP IDX ddot IDX SQCL
-IDX -> id | num
+JAGGED -> jagged array SQOP num ddot num SQCL JAGGED_INIT
+JAGGED_INIT -> 2D_INIT
+JAGGED_INIT -> 3D_INIT
+
+2D_INIT -> SQOP SQCL of integer semicol 2D_VALS
+3D_INIT -> SQOP SQCL SQOP SQCL of integer semicol 3D_VALS
+
+2D_VALS -> R1 SQOP num SQCL col size num col values CURLOP INT_LIST CURLCL 2D_VALS
+2D_VALS -> R1 SQOP num SQCL col size num col values CURLOP INT_LIST CURLCL
+INT_LIST -> num semicol INT_LIST
+INT_LIST -> num
+
+3D_VALS -> R1 SQOP num SQCL col size num col values CURLOP INT_LIST_LIST CURLCL 3D_VALS
+3D_VALS -> R1 SQOP num SQCL col size num col values CURLOP INT_LIST_LIST CURLCL
+INT_LIST_LIST -> VAR_LIST semicol INT_LIST_LIST
+INT_LIST_LIST -> VAR_LIST
+VAR_LIST -> num VAR_LIST
+VAR_LIST -> num
+
+
+ARRAY_RANGE -> SQOP IDX ddot IDX SQCL ARRAY_RANGE
+ARRAY_RANGE -> SQOP IDX ddot IDX SQCL
+
+IDX -> id
+IDX -> num
 VAR_LIST -> id MULT_ID
-MULT_ID -> id MULT_ID | id
+MULT_ID -> id MULT_ID
+MULT_ID -> id
 
 
-
-ASSIGN_STATEMENT -> id eqop EXPRESSION
-EXPRESSION -> EXPRESSION plus__op TERM | EXPRESSION minus_op TERM | TERM
-TERM -> TERM mult_op 
-
-
-
-
-
-
-
-
-
-
-declare a: 
-
-//doubts: jagged ma colon k semi colon
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// num square_brackets can't be called as keywords ?
-// in IDX if id is not integer // how to include that in grammar ?
-// can VAR_LIST have a single element ?
-// what is R1? can it be considered a keyword?
+ASSIGN_STATEMENT -> id EQ_OP EXPR
+EXPR -> EXPR AS_OP TERM
+EXPR -> TERM
+AS_OP -> add_op
+AS_OP -> sub_op
+TERM -> TERM MD_OP IDX
+TERM -> IDX		//typechecking at this stage or run time?
+MD_OP -> mul_op
+MD_OP -> div_op

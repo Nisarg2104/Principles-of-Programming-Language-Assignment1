@@ -6,7 +6,7 @@ typedef enum {
 } terminal;
 
 typedef enum{
-    JAGGED_LIST
+    #include "non_terminals.txt"
 } non_terminal;
 
 

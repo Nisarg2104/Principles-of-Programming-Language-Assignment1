@@ -18,33 +18,25 @@ RECTANGULAR -> array ARRAY_RANGE of integer
 JAGGED -> jagged array sq_op num ddot num sq_cl JAGGED_INIT
 JAGGED_INIT -> 2D_INIT
 JAGGED_INIT -> 3D_INIT
-
 2D_INIT -> sq_op sq_cl of integer semicol 2D_VALS
 3D_INIT -> sq_op sq_cl sq_op sq_cl of integer semicol 3D_VALS
-
 2D_VALS -> R1 sp_op num sq_cl col size num col values cb_op INT_LIST cb_cl 2D_VALS
 2D_VALS -> R1 sq_op num sq_cl col size num col values cb_op INT_LIST cb_cl
 INT_LIST -> num semicol INT_LIST
 INT_LIST -> num
-
 3D_VALS -> R1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl 3D_VALS
 3D_VALS -> R1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl
 INT_LIST_LIST -> VAR_LIST semicol INT_LIST_LIST
 INT_LIST_LIST -> VAR_LIST
 VAR_LIST -> num VAR_LIST
 VAR_LIST -> num
-
-
 ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl ARRAY_RANGE
 ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl
-
 IDX -> id
 IDX -> num
 VAR_LIST -> id MULT_ID
 MULT_ID -> id MULT_ID
 MULT_ID -> id
-
-
 ASSIGN_STATEMENT -> id EQ_OP EXPR
 EXPR -> EXPR AS_OP TERM
 EXPR -> TERM

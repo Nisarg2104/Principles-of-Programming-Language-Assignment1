@@ -19,7 +19,7 @@ typedef struct{
     rhs_node* first_rhs;
 } cell_node;
 
-cell_node grammar[NO_OF_RULES];
+cell_node* grammar;
 
 void readGrammar(char* filename,cell_node *grammar);
 

@@ -1,5 +1,6 @@
 #include "grammar.h"
 
+
 void readGrammar(char* filename,cell_node *grammar) {
     int linenum = 0;
     FILE* grFile = fopen(filename, "r");
@@ -45,7 +46,7 @@ void readGrammar(char* filename,cell_node *grammar) {
 }
 
 int main() {
-        cell_node* grammar = (cell_node*)malloc(100*sizeof(cell_node));
+        grammar = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
 
         char filename[50] = "grammar.txt";
         readGrammar(filename,grammar);

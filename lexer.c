@@ -32,12 +32,12 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     
 }
 
-int main() {
-    char filename[50] = "program.txt";
-    tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
-    tokeniseSourcecode(filename,head);
-    return 0;
-}
+// int main() {
+//     char filename[50] = "program.txt";
+//     tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
+//     tokeniseSourcecode(filename,head);
+//     return 0;
+// }
 
 non_terminal returnNonTerminalVal(char* lex) {
 

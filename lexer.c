@@ -59,7 +59,6 @@ non_terminal returnNonTerminalVal(char* lex) {
         return TYPE;
     else if(!strcmp(lex,"VAR_LIST"))
         return VAR_LIST;
-    
      else if(!strcmp(lex,"PRIM_TYPE"))
         return PRIM_TYPE;
     else if(!strcmp(lex,"ARRAY"))
@@ -70,37 +69,50 @@ non_terminal returnNonTerminalVal(char* lex) {
         return ASSIGN_STATEMENT;
     else if(!strcmp(lex,"JAGGED"))
         return JAGGED;
+    else if(!strcmp(lex,"JAGGED_INIT_DASH"))
+        return JAGGED_INIT_DASH;
     else if(!strcmp(lex,"JAGGED_INIT"))
         return JAGGED_INIT;
-    else if(!strcmp(lex,"2D_INIT"))
+    else if(!strcmp(lex,"TD_INIT"))
         return TD_INIT;
-    else if(!strcmp(lex,"3D_INIT"))
+    else if(!strcmp(lex,"THD_INIT"))
         return THD_INIT;
-
-
-    else if(!strcmp(lex,"2D_VALS"))
+    else if(!strcmp(lex,"TD_VALS_DASH"))
+        return TD_VALS_DASH;
+    else if(!strcmp(lex,"THD_VALS_DASH"))
+        return THD_VALS_DASH;
+    else if(!strcmp(lex,"TD_VALS"))
         return TD_VALS;
-    else if(!strcmp(lex,"3D_VALS"))
+    else if(!strcmp(lex,"THD_VALS"))
         return THD_VALS;
     else if(!strcmp(lex,"INT_LIST"))
         return INT_LIST;
     else if(!strcmp(lex,"INT_LIST_LIST"))
         return INT_LIST_LIST;
+    else if(!strcmp(lex,"INT_LIST_LIST_DASH"))
+        return INT_LIST_LIST_DASH;    
     else if(!strcmp(lex,"INT_VAR_LIST"))
         return INT_VAR_LIST;
+    else if(!strcmp(lex,"INT_VAR_LIST_DASH"))
+        return INT_VAR_LIST_DASH;
     else if(!strcmp(lex,"ARRAY_RANGE"))
         return ARRAY_RANGE;
+    else if(!strcmp(lex,"ARRAY_RANGE_DASH"))
+        return ARRAY_RANGE_DASH;
     else if(!strcmp(lex,"IDX"))
         return IDX;
     else if(!strcmp(lex,"MULT_ID"))
         return MULT_ID;
-
-     else if(!strcmp(lex,"EQ_UP"))
-        return EQ_UP;
+    else if(!strcmp(lex,"MULT_ID_DASH"))
+        return MULT_ID_DASH;
     else if(!strcmp(lex,"EXPR"))
         return EXPR;
+    else if(!strcmp(lex,"EXPR_DASH"))
+        return EXPR_DASH;
     else if(!strcmp(lex,"TERM"))
         return TERM;
+    else if(!strcmp(lex,"TERM_DASH"))
+        return TERM_DASH;
     else if(!strcmp(lex,"AS_OP"))
         return AS_OP;
     else if(!strcmp(lex,"MD_OP"))
@@ -159,13 +171,14 @@ terminal returnTerminalVal(char* lex) {
         return mul_op;
     else if(!strcmp(lex,"/"))
         return div_op;
-
+    else if(!strcmp(lex,"="))
+        return eq_op;
     for(int i=0;i<strlen(lex);i++) {
 
-        if(lex[i]-'0' < 0 || lex[i]-'0' > 9) {
+        if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {
             return id;
         }
     }
     return num;
-
+    
 }

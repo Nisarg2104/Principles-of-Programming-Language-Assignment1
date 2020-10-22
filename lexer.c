@@ -11,17 +11,21 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
         fgets(BUF,200,code);
         char *token;
         token = strtok(BUF, " \t\r\n");
+
+        printf("%d ",linenum);
    
         while( token != NULL) 
         {
             curr->nextToken = malloc(sizeof(tokenStream));
             curr = curr->nextToken;
             curr->line_num = linenum;
+            
             strcpy(curr->lexeme,token);
-            // curr->token_name = 
-            // printf( " %s\n", token);
+            curr->token_name = returnTokenstreamTerminalVal(token);
+            printf( "%d ", curr->token_name);
             token = strtok(NULL, " \t\r\n");
         }
+        printf("\n");
     }
     curr = head->nextToken;
     while(curr != NULL)
@@ -32,6 +36,74 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     
 }
 
+terminal returnTokenstreamTerminalVal(char* lex) {
+    if(!strcmp(lex,"program"))
+        return program;
+    else if(!strcmp(lex,"()"))
+        return rbs;
+    else if(!strcmp(lex,"{"))
+        return cb_op;
+    else if(!strcmp(lex,"}"))
+        return cb_cl;
+    else if(!strcmp(lex,"declare"))
+        return declare;
+    else if(!strcmp(lex,":"))
+        return col;
+    else if(!strcmp(lex,"list"))
+        return list;
+    else if(!strcmp(lex,"of"))
+        return of;
+    else if(!strcmp(lex,"variables"))
+        return variables;
+    else if(!strcmp(lex,";"))
+        return semicol;
+    else if(!strcmp(lex,"integer"))
+        return integer;
+    else if(!strcmp(lex,"boolean"))
+        return boolean;
+    else if(!strcmp(lex,"real"))
+        return real;
+    else if(!strcmp(lex,"array"))
+        return array;
+    else if(!strcmp(lex,"jagged"))
+        return jagged;
+    else if(!strcmp(lex,".."))
+        return ddot;
+    else if(!strcmp(lex,"R1"))
+        return r1;
+    else if(!strcmp(lex,"["))
+        return sq_op;
+    else if(!strcmp(lex,"]"))
+        return sq_cl;
+    else if(!strcmp(lex,"size"))
+        return size;
+    else if(!strcmp(lex,"values"))
+        return values;
+    else if(!strcmp(lex,"+"))
+        return add_op;
+    else if(!strcmp(lex,"-"))
+        return sub_op;
+    else if(!strcmp(lex,"*"))
+        return mul_op;
+    else if(!strcmp(lex,"/"))
+        return div_op;
+    else if(!strcmp(lex,"="))
+        return eq_op;
+    else if(!strcmp(lex,""))
+        return eps;
+    else if(!strcmp(lex,"|||"))
+        return or_op;
+    else if(!strcmp(lex,"&&&"))
+        return and_op;
+    for(int i=0;i<strlen(lex);i++) {
+
+        if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {
+            return id;
+        }
+    }
+    return num;
+
+}
 
 non_terminal returnNonTerminalVal(char* lex) {
 
@@ -119,15 +191,15 @@ non_terminal returnNonTerminalVal(char* lex) {
 terminal returnTerminalVal(char* lex) {
     if(!strcmp(lex,"program"))
         return program;
-    else if(!strcmp(lex,"()"))
+    else if(!strcmp(lex,"rbs"))
         return rbs;
-    else if(!strcmp(lex,"{"))
+    else if(!strcmp(lex,"cb_op"))
         return cb_op;
-    else if(!strcmp(lex,"}"))
+    else if(!strcmp(lex,"cb_cl"))
         return cb_cl;
     else if(!strcmp(lex,"declare"))
         return declare;
-    else if(!strcmp(lex,":"))
+    else if(!strcmp(lex,"col"))
         return col;
     else if(!strcmp(lex,"list"))
         return list;
@@ -135,7 +207,7 @@ terminal returnTerminalVal(char* lex) {
         return of;
     else if(!strcmp(lex,"variables"))
         return variables;
-    else if(!strcmp(lex,";"))
+    else if(!strcmp(lex,"semicol"))
         return semicol;
     else if(!strcmp(lex,"integer"))
         return integer;
@@ -147,40 +219,39 @@ terminal returnTerminalVal(char* lex) {
         return array;
     else if(!strcmp(lex,"jagged"))
         return jagged;
-    else if(!strcmp(lex,".."))
+    else if(!strcmp(lex,"ddot"))
         return ddot;
-    else if(!strcmp(lex,"R1"))
+    else if(!strcmp(lex,"r1"))
         return r1;
-    else if(!strcmp(lex,"["))
+    else if(!strcmp(lex,"sq_op"))
         return sq_op;
-    else if(!strcmp(lex,"]"))
+    else if(!strcmp(lex,"sq_cl"))
         return sq_cl;
     else if(!strcmp(lex,"size"))
         return size;
     else if(!strcmp(lex,"values"))
         return values;
-    else if(!strcmp(lex,"+"))
+    else if(!strcmp(lex,"add_op"))
         return add_op;
-    else if(!strcmp(lex,"-"))
+    else if(!strcmp(lex,"sub_op"))
         return sub_op;
-    else if(!strcmp(lex,"*"))
+    else if(!strcmp(lex,"mul_op"))
         return mul_op;
-    else if(!strcmp(lex,"/"))
+    else if(!strcmp(lex,"div_op"))
         return div_op;
-    else if(!strcmp(lex,"="))
+    else if(!strcmp(lex,"eq_op"))
         return eq_op;
-    else if(!strcmp(lex,""))
+    else if(!strcmp(lex,"eps"))
         return eps;
-    else if(!strcmp(lex,"|||"))
+    else if(!strcmp(lex,"or_op"))
         return or_op;
-    else if(!strcmp(lex,"&&&"))
+    else if(!strcmp(lex,"and_op"))
         return and_op;
-    for(int i=0;i<strlen(lex);i++) {
-
-        if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {
-            return id;
-        }
-    }
+    else if (!strcmp(lex,"id"))
+        return id;
+        
     return num;
+
+
 
 }

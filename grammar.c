@@ -12,7 +12,7 @@ void readGrammar(char* filename,cell_node *grammar) {
         token = strtok(BUF, " \t\r\n");
 
         grammar[linenum].lhs = returnNonTerminalVal(token);
-        grammar[linenum].first_rhs = malloc(sizeof(rhs_node));
+        
         rhs_node* rhs = grammar[linenum].first_rhs;
 
         // printf("%s -> ", token);
@@ -22,6 +22,17 @@ void readGrammar(char* filename,cell_node *grammar) {
 
         
         while(token != NULL) {
+
+            if(rhs==NULL) {
+                grammar[linenum].first_rhs = malloc(sizeof(rhs_node));
+                rhs = grammar[linenum].first_rhs;
+            }
+            else {
+                rhs->next = malloc(sizeof(rhs_node));
+                rhs->next->prev = rhs;
+                rhs = rhs->next;
+            }
+            
             if(isupper(token[0])) {
                 rhs->is_terminal = false;
                 rhs->non_term = returnNonTerminalVal(token);
@@ -33,15 +44,35 @@ void readGrammar(char* filename,cell_node *grammar) {
             }
 
             // printf("%s ",token);
-
-            rhs->next = malloc(sizeof(rhs_node));
-            rhs = rhs->next;
+            grammar[linenum].last_rhs = rhs;
             token = strtok(NULL," \t\r\n");            
         }
         // printf("\n");
+
+        rhs_node* curr = grammar[linenum].last_rhs;
+
+        // while(curr!=NULL) {
+        //     printf("%d:",curr->is_terminal);
+        //     if(curr->is_terminal) {
+        //         printf("%d\t",curr->term);
+        //     }
+        //     else
+        //     {
+        //         printf("%d\t",curr->non_term);
+        //     }
+
+        //     curr = curr->prev;
+            
+        // }
+
+        // printf("\n");
+
         linenum++;
 
+
     }
+
+    
 
 }
 int ** hardCodedRules()
@@ -149,22 +180,27 @@ void initialiseRules(int **rules)
     rules[EPS][declare] = 60;
     rules[EPS][col] = 60;   
 
-
-    for(int i = 0;i<39;i++)
-    {
-        for(int j = 0;j<31;j++)
-            printf("%d ",rules[i][j]);
-        printf("\n");
-    }
+    // for(int i = 0;i<39;i++)
+    // {
+    //     for(int j = 0;j<31;j++)
+    //         printf("%d\t",rules[i][j]);
+    //     printf("\n");
+    // }
 }
 int main() {
-        grammar = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
+
+        grammar G;
+        G.grammar_rules = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
         char grammarname[50] = "grammar.txt";
-        readGrammar(grammarname,grammar);
+        readGrammar(grammarname,G.grammar_rules);
         char programname[50] = "program.txt";
         tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
         tokeniseSourcecode(programname,head);
-        int ** rules = hardCodedRules();
-        initialiseRules(rules);
+        // generateParseTree(head,G);
         return 0;
+}
+void generateParseTree(tokenStream* s,grammar G)
+{
+    int ** rules = hardCodedRules();
+    initialiseRules(rules);
 }

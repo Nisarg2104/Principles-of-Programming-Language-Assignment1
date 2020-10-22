@@ -51,21 +51,21 @@ void readGrammar(char* filename,cell_node *grammar) {
 
         rhs_node* curr = grammar[linenum].last_rhs;
 
-        // while(curr!=NULL) {
-        //     printf("%d:",curr->is_terminal);
-        //     if(curr->is_terminal) {
-        //         printf("%d\t",curr->term);
-        //     }
-        //     else
-        //     {
-        //         printf("%d\t",curr->non_term);
-        //     }
+        while(curr!=NULL) {
+            printf("%d:",curr->is_terminal);
+            if(curr->is_terminal) {
+                printf("%d\t",curr->term);
+            }
+            else
+            {
+                printf("%d\t",curr->non_term);
+            }
 
-        //     curr = curr->prev;
+            curr = curr->prev;
             
-        // }
+        }
 
-        // printf("\n");
+        printf("\n");
 
         linenum++;
 
@@ -151,6 +151,7 @@ int** initialiseRules(int **rules)
     rules[EXPR_DASH][or_op] = 49;
     rules[EXPR_DASH][add_op] = 49;
     rules[EXPR_DASH][sub_op] = 49;
+    rules[EXPR_DASH][semicol] = 50;
     rules[EXPR_DASH][id] = 50;
     rules[EXPR_DASH][cb_cl] = 50;
     rules[EXPR_DASH][declare] = 50;
@@ -168,9 +169,10 @@ int** initialiseRules(int **rules)
     rules[TERM_DASH][id] = 56;
     rules[TERM_DASH][cb_cl] = 56;
     rules[TERM_DASH][declare] = 56;
+    rules[TERM_DASH][semicol] = 56;
     rules[MDA_OP][and_op] = 59;
-    rules[MDA_OP][mul_op] = 58;
-    rules[MDA_OP][div_op] = 57;
+    rules[MDA_OP][mul_op] = 57;
+    rules[MDA_OP][div_op] = 58;
     rules[EPS][or_op] = 60;
     rules[EPS][sub_op] = 60;
     rules[EPS][add_op] = 60;

@@ -153,6 +153,8 @@ non_terminal returnNonTerminalVal(char* lex) {
         return THD_VALS;
     else if(!strcmp(lex,"INT_LIST"))
         return INT_LIST;
+    else if(!strcmp(lex,"INT_LIST_DASH"))
+        return INT_LIST_DASH;
     else if(!strcmp(lex,"INT_LIST_LIST"))
         return INT_LIST_LIST;
     else if(!strcmp(lex,"INT_LIST_LIST_DASH"))

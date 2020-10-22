@@ -107,10 +107,10 @@ non_terminal returnNonTerminalVal(char* lex) {
         return TERM;
     else if(!strcmp(lex,"TERM_DASH"))
         return TERM_DASH;
-    else if(!strcmp(lex,"AS_OP"))
-        return AS_OP;
-    else if(!strcmp(lex,"MD_OP"))
-        return MD_OP;
+    else if(!strcmp(lex,"ASO_OP"))
+        return ASO_OP;
+    else if(!strcmp(lex,"MDA_OP"))
+        return MDA_OP;
     else if(!strcmp(lex,"EPS"))
         return EPS;
 
@@ -171,6 +171,10 @@ terminal returnTerminalVal(char* lex) {
         return eq_op;
     else if(!strcmp(lex,""))
         return eps;
+    else if(!strcmp(lex,"|||"))
+        return or_op;
+    else if(!strcmp(lex,"&&&"))
+        return and_op;
     for(int i=0;i<strlen(lex);i++) {
 
         if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {

@@ -9,7 +9,7 @@ SINGLE_DECLARE -> id col TYPE.
 MULTI_DECLARE -> list of variables VAR_LIST col TYPE.
 TYPE ->	PRIM_TYPE semicol.
 TYPE ->	ARRAY.
-ARRAY -> RECTANGULAR.
+ARRAY -> RECTANGULAR semicol.
 ARRAY -> JAGGED.
 PRIM_TYPE -> integer.
 PRIM_TYPE -> boolean.

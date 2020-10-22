@@ -174,6 +174,7 @@ int** initialiseRules(int **rules)
     rules[EPS][or_op] = 60;
     rules[EPS][sub_op] = 60;
     rules[EPS][add_op] = 60;
+    rules[EPS][of] = 60;
     rules[EPS][cb_cl] = 60;
     rules[EPS][id] = 60;
     rules[EPS][semicol] = 60;

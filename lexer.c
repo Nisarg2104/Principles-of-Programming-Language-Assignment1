@@ -12,7 +12,7 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
         char *token;
         token = strtok(BUF, " \t\r\n");
 
-        printf("%d ",linenum);
+        // printf("%d ",linenum);
    
         while( token != NULL) 
         {
@@ -22,10 +22,10 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
             
             strcpy(curr->lexeme,token);
             curr->token_name = returnTokenstreamTerminalVal(token);
-            printf( "%d ", curr->token_name);
+            // printf( "%d ", curr->token_name);
             token = strtok(NULL, " \t\r\n");
         }
-        printf("\n");
+        // printf("\n");
     }
     curr = head->nextToken;
     while(curr != NULL)

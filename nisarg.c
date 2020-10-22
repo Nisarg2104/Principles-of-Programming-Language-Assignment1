@@ -25,7 +25,107 @@ rhs_node pop(stack *s){
     }
     return s->arr[s->top+1];
 }
-
+void runVal(int x)
+{
+    switch(x)
+    {
+        case 0:
+            printf("&&& ");
+            break;
+        case 1:
+            printf("/ ");
+            break;
+        case 2:
+            printf("* ");
+            break;
+        case 3:
+            printf("||| ");
+            break;
+        case 4:
+            printf("- ");
+            break;
+        case 5:
+            printf("+ ");
+            break;
+        case 6:
+            printf("= ");
+            break;
+        case 7:
+            printf("ID ");
+            break;
+        case 8:
+            printf("NUM ");
+            break;
+        case 9:
+            printf("] ");
+            break;
+        case 10:
+            printf(".. ");
+            break;
+        case 11:
+            printf("[ ");
+            break;
+        case 12:
+            printf("; ");
+            break;
+        case 13:
+            printf("} ");
+            break;
+        case 14:
+            printf("{ ");
+            break;
+        case 15:
+            printf("values ");
+            break;
+        case 16:
+            printf(": ");
+            break;
+        case 17:
+            printf("size ");
+            break;
+        case 18:
+            printf("R1 ");
+            break;
+        case 19:
+            printf("integer ");
+            break;
+        case 20:
+            printf("of ");
+            break;
+        case 21:
+            printf("array ");
+            break;
+        case 22:
+            printf("jagged ");
+            break;
+        case 23:
+            printf("real ");
+            break;
+        case 24:
+            printf("boolean ");
+            break;
+        case 25:
+            printf("variables ");
+            break;
+        case 26:
+            printf("list ");
+            break;
+        case 27:
+            printf("declare ");
+            break;
+        case 28:
+            printf("rbs ");
+            break;
+        case 29:
+            printf("program ");
+            break;
+        case 30:
+            printf("eps ");
+            break;
+        default:
+            printf("Token Don't Exist");
+    }
+}
 
 void createParseTree( parseTree *t, tokenStream *s, grammar G){
     stack *main_stack;
@@ -35,7 +135,7 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
 
     
     s = s->nextToken;
-    printf("%s",s->lexeme); 
+    // printf("%s",s->lexeme); 
     main_stack=create_stack();
     tokenStream *curr_tok = s;
     rhs_node prog_node;
@@ -46,9 +146,6 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
     prog_node.non_term=PROGRAM;
 
     push(main_stack,prog_node);
-    
-    
-   
     
     t=(parseTree*) malloc(sizeof(parseTree));
     t->left_most_child=NULL;
@@ -68,32 +165,42 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
         int curr_rule =  rules[temp.non_term][curr_tok->token_name]; 
 
         cell_node curr_grammar = G.grammar_rules[curr_rule];
-        printf("%d\n",count);
-        // printf("%d %d\n",curr_rule,temp.non_term);
+        if(curr_grammar.lhs != temp.non_term)
+        {
+            printf("%d\n",count);
+            printf("%s %d %d\n",curr_tok->lexeme,temp.non_term, curr_tok->line_num);
+        }
         assert(curr_grammar.lhs == temp.non_term);
 
         rhs_node *curr_rhs=curr_grammar.last_rhs;
 
         while(curr_rhs!=NULL){
             push(main_stack,*curr_rhs);
-            if(curr_rhs->is_terminal)
-                printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->term);
-            else
-            {
-                printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->non_term);
-            }
+            // if(curr_rhs->is_terminal)
+            //     printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->term);
+            // else
+            // {
+            //     printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->non_term);
+            // }
             curr_rhs=curr_rhs->prev;
         }
         int flag = 0;
         while(main_stack->arr[main_stack->top].is_terminal){
-            if(main_stack->arr[main_stack->top].term==s->token_name){
+            if(main_stack->arr[main_stack->top].term==curr_tok->token_name){
+                runVal(main_stack->arr[main_stack->top].term);
+                printf(" %s\n",curr_tok->lexeme);
                 pop(main_stack);
-                printf("Chala");
+                
                 curr_tok=curr_tok->nextToken;
             }
+            else if(main_stack->arr[main_stack->top].term == 30)
+            {
+                pop(main_stack);
+                // printf("Chala\n");
+            }
             else{
-                printf("%d %d\n",main_stack->arr[main_stack->top].term,s->token_name);
-                printf("fkin error!");
+                // printf("%d %d\n",main_stack->arr[main_stack->top].term,curr_tok->token_name);
+                // printf("fkin error!");
                 flag = 1;
                 break;
             }

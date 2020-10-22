@@ -6,9 +6,9 @@ STATEMENT -> ASSIGN_STATEMENT
 DECLARE_STATEMENT -> SINGLE_DECLARE
 DECLARE_STATEMENT -> MULTI_DECLARE
 SINGLE_DECLARE -> id col TYPE
-MULTI_DECLARE -> list of variables VAR_LIST col TYPE semicol
-TYPE -> PRIM_TYPE semicol
-TYPE -> ARRAY
+MULTI_DECLARE -> list of variables VAR_LIST col TYPE
+TYPE ->	PRIM_TYPE semicol
+TYPE ->	ARRAY
 ARRAY -> RECTANGULAR
 ARRAY -> JAGGED
 PRIM_TYPE -> integer
@@ -21,7 +21,7 @@ JAGGED_INIT_DASH -> TD_INIT
 JAGGED_INIT_DASH -> THD_INIT
 TD_INIT -> of integer semicol TD_VALS
 THD_INIT -> sq_op sq_cl of integer semicol THD_VALS
-TD_VALS -> r1 sp_op num sq_cl col size num col values cb_op INT_LIST cb_cl TD_VALS_DASH
+TD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST cb_cl TD_VALS_DASH
 TD_VALS_DASH -> TD_VALS
 TD_VALS_DASH -> EPS
 INT_LIST -> num INT_LIST_DASH
@@ -43,11 +43,11 @@ IDX -> id
 IDX -> num
 VAR_LIST -> id MULT_ID
 MULT_ID -> id MULT_ID_DASH
-MULT_ID_DASH -> EPS
-MULT_ID_DASH -> MULT_ID
-ASSIGN_STATEMENT -> id eq_op EXPR
-EXPR -> TERM EXPR_DASH
-EXPR_DASH -> ASO_OP TERM EXPR_DASH
+MULT_ID_DASH ->	EPS
+MULT_ID_DASH ->	MULT_ID
+ASSIGN_STATEMENT ->	id eq_op EXPR semicol
+EXPR ->	TERM EXPR_DASH
+EXPR_DASH -> ASO_OP TERM EXPR_DASH 
 EXPR_DASH -> EPS
 ASO_OP -> add_op
 ASO_OP -> sub_op

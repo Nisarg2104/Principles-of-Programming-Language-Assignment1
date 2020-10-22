@@ -26,7 +26,7 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     curr = head->nextToken;
     while(curr != NULL)
     {
-        printf(" %s %d\n",curr->lexeme,curr->line_num);
+        // printf(" %s %d\n",curr->lexeme,curr->line_num);
         curr = curr->nextToken;
     }
     

@@ -15,7 +15,7 @@ void readGrammar(char* filename,cell_node *grammar) {
         grammar[linenum].first_rhs = malloc(sizeof(rhs_node));
         rhs_node* rhs = grammar[linenum].first_rhs;
 
-        printf("%s -> ", token);
+        // printf("%s -> ", token);
 
         token = strtok(NULL," \t\r\n");
         token = strtok(NULL," \t\r\n");
@@ -32,13 +32,13 @@ void readGrammar(char* filename,cell_node *grammar) {
                 rhs->term = returnTerminalVal(token);
             }
 
-            printf("%s ",token);
+            // printf("%s ",token);
 
             rhs->next = malloc(sizeof(rhs_node));
             rhs = rhs->next;
             token = strtok(NULL," \t\r\n");            
         }
-        printf("\n");
+        // printf("\n");
         linenum++;
 
     }
@@ -54,13 +54,24 @@ int ** hardCodedRules()
 
     return p;
 }
+void initialiseRules(int **rules)
+{
+    rules[PROGRAM][program] = 0;
+    for(int i = 0;i<39;i++)
+    {
+        for(int j = 0;j<31;j++)
+            printf("%d ",PROGRAM);
+        printf("\n");
+    }
+}
 int main() {
         grammar = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
         char grammarname[50] = "grammar.txt";
         readGrammar(grammarname,grammar);
         char programname[50] = "program.txt";
         tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
-        //tokeniseSourcecode(programname,head);
-        hardCodedRules();
+        tokeniseSourcecode(programname,head);
+        int ** rules = hardCodedRules();
+        initialiseRules(rules);
         return 0;
 }

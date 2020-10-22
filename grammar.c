@@ -44,9 +44,15 @@ void readGrammar(char* filename,cell_node *grammar) {
     }
 
 }
-void hardCodedRules()
+int ** hardCodedRules()
 {
-    int arr[100][100];
+    int** p = malloc(39*(sizeof(int*)));
+    for(int i=0;i<39;i++) {
+        p[i] = malloc(31*sizeof(int));
+        memset(p[i], -1, 31*sizeof(int));
+    }
+
+    return p;
 }
 int main() {
         grammar = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
@@ -54,6 +60,7 @@ int main() {
         readGrammar(grammarname,grammar);
         char programname[50] = "program.txt";
         tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
-        tokeniseSourcecode(programname,head);
+        //tokeniseSourcecode(programname,head);
+        hardCodedRules();
         return 0;
 }

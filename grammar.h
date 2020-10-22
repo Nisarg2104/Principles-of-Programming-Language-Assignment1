@@ -14,14 +14,8 @@ struct RHS_NODE{
 };
 typedef struct RHS_NODE rhs_node;
 
-typedef struct{
-    parse_node* parent;
-    int currchildren = 0;
-    int size = grammarrulesize
-    parse_node* children[];
 
 
-} parse_node;
 typedef struct{
     non_terminal lhs;
     rhs_node* first_rhs;
@@ -35,8 +29,18 @@ struct Grammar{
 
 typedef struct Grammar grammar;
 
+typedef struct parseTree{
+    struct parseTree* parent;
+    struct parseTree * left_most_child;
+    struct parseTree* right_most_child;
+    struct parseTree* right_sibling;
+
+    non_terminal nt;
+} parseTree;
 
 void readGrammar(char* filename,cell_node *grammar);
+int** hardCodedRules();
+int** initialiseRules(int **rules);
 
 
 

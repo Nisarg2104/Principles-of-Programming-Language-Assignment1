@@ -25,7 +25,6 @@ struct TOKEN
 typedef struct TOKEN tokenStream;
 
 void tokeniseSourcecode( char* filename, tokenStream *s);
-
 terminal returnTokenstreamTerminalVal(char* lex);
 non_terminal returnNonTerminalVal(char* lex);
 terminal returnTerminalVal(char* lex);

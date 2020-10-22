@@ -1,4 +1,4 @@
-#include "grammar.h"
+#include "nisarg.h"
 
 
 void readGrammar(char* filename,cell_node *grammar) {
@@ -75,9 +75,9 @@ void readGrammar(char* filename,cell_node *grammar) {
     
 
 }
-int ** hardCodedRules()
+int** hardCodedRules()
 {
-    int** p = malloc(39*(sizeof(int*)));
+    int **p = malloc(39*(sizeof(int*)));
     for(int i=0;i<39;i++) {
         p[i] = malloc(31*sizeof(int));
         memset(p[i], -1, 31*sizeof(int));
@@ -85,7 +85,7 @@ int ** hardCodedRules()
 
     return p;
 }
-void initialiseRules(int **rules)
+int** initialiseRules(int **rules)
 {
     rules[PROGRAM][program] = 0;
     rules[STATEMENTS][id] = 1;
@@ -186,6 +186,7 @@ void initialiseRules(int **rules)
     //         printf("%d\t",rules[i][j]);
     //     printf("\n");
     // }
+    return rules;
 }
 int main() {
 
@@ -196,11 +197,7 @@ int main() {
         char programname[50] = "program.txt";
         tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
         tokeniseSourcecode(programname,head);
-        // generateParseTree(head,G);
+        parseTree *t;
+        createParseTree(t,head,G); // segfault in this
         return 0;
-}
-void generateParseTree(tokenStream* s,grammar G)
-{
-    int ** rules = hardCodedRules();
-    initialiseRules(rules);
 }

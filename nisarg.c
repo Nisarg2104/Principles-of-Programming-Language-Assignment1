@@ -127,102 +127,100 @@ void runVal(int x)
     }
 }
 
-void createParseTree( parseTree *t, tokenStream *s, grammar G){
-    stack *main_stack;
-     int ** rules ;
-     rules=hardCodedRules();
-    rules= initialiseRules(rules);
+// void createParseTree( parseTree *t, tokenStream *s, grammar G){
+//     stack *main_stack;
+//     int ** rules ;
+//     rules=hardCodedRules();
+//     rules= initialiseRules(rules);
 
     
-    s = s->nextToken;
-    // printf("%s",s->lexeme); 
-    main_stack=create_stack();
-    tokenStream *curr_tok = s;
-    rhs_node prog_node;
+//     s = s->nextToken;
+//     // printf("%s",s->lexeme); 
+//     main_stack=create_stack();
+//     tokenStream *curr_tok = s;
+//     rhs_node prog_node;
 
-    prog_node.is_terminal=false;
-    prog_node.next=NULL;
-    prog_node.prev=NULL;
-    prog_node.non_term=PROGRAM;
+//     prog_node.is_terminal=false;
+//     prog_node.next=NULL;
+//     prog_node.prev=NULL;
+//     prog_node.non_term=PROGRAM;
 
-    push(main_stack,prog_node);
+//     push(main_stack,prog_node);
     
-    t=(parseTree*) malloc(sizeof(parseTree));
-    t->left_most_child=NULL;
-    t->non_term=PROGRAM;
-    t->is_terminal=false;
-    t->right_most_child=NULL;
-    t->parent=NULL;
+//     t->left_most_child=NULL;
+//     t->non_term=PROGRAM;
+//     t->is_terminal=false;
+//     t->right_most_child=NULL;
+//     t->parent=NULL;
 
-    parseTree *curr;
-    curr=t;
-    int count = 0;
-    do{
+//     parseTree *curr_parse_tree_parent = t;
+//     int count = 0;
+//     do{
 
-        rhs_node temp;
-        temp=pop(main_stack);
+//         rhs_node temp;
+//         temp=pop(main_stack);
 
-        int curr_rule =  rules[temp.non_term][curr_tok->token_name]; 
+//         int curr_rule =  rules[temp.non_term][curr_tok->token_name]; 
         
-        cell_node curr_grammar = G.grammar_rules[curr_rule];
-        printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d\n",temp.non_term,curr_tok->token_name,curr_rule);
-        if(curr_grammar.lhs != temp.non_term)
-        {
-            printf("%d\n",count);
-            printf("%s %d %d\n",curr_tok->lexeme,temp.non_term, curr_tok->line_num);
-        }
-        assert(curr_grammar.lhs == temp.non_term);
+//         cell_node curr_grammar = G.grammar_rules[curr_rule];
+//         printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d\n",temp.non_term,curr_tok->token_name,curr_rule);
+//         if(curr_grammar.lhs != temp.non_term)
+//         {
+//             printf("%d\n",count);
+//             printf("%s %d %d\n",curr_tok->lexeme,temp.non_term, curr_tok->line_num);
+//         }
+//         assert(curr_grammar.lhs == temp.non_term);
 
-        rhs_node *curr_rhs=curr_grammar.last_rhs;
+//         rhs_node *curr_rhs=curr_grammar.last_rhs;
 
-        while(curr_rhs!=NULL){
-        //if(main_stack->arr[main_stack->top].is_terminal)
-             //   printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].term);
-            //else
-            //{
-            //    printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].non_term);
-            //}
-			            push(main_stack,*curr_rhs);
+//         while(curr_rhs!=NULL){
+//             //if(main_stack->arr[main_stack->top].is_terminal)
+//             //   printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].term);
+//             //else
+//             //{
+//             //    printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].non_term);
+//             //}
+// 			    push(main_stack,*curr_rhs);
         
-            if(curr_rhs->is_terminal)
-                printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->term);
-            else
-            {
-                printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->non_term);
-            }
-            curr_rhs=curr_rhs->prev;
-        }
-        int flag = 0;
-        while(main_stack->arr[main_stack->top].is_terminal){
-            if(main_stack->arr[main_stack->top].term==curr_tok->token_name){
-                runVal(main_stack->arr[main_stack->top].term);
-                printf(" %s\n",curr_tok->lexeme);
-                pop(main_stack);
+//             if(curr_rhs->is_terminal)
+//                 printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->term);
+//             else
+//             {
+//                 printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->non_term);
+//             }
+//             curr_rhs=curr_rhs->prev;
+//         }
+//         int flag = 0;
+//         while(main_stack->arr[main_stack->top].is_terminal){
+//             if(main_stack->arr[main_stack->top].term==curr_tok->token_name){
+//                 runVal(main_stack->arr[main_stack->top].term);
+//                 printf(" %s\n",curr_tok->lexeme);
+//                 *curr_rhs = pop(main_stack);
                 
-                curr_tok=curr_tok->nextToken;
-            }
-            else if(main_stack->arr[main_stack->top].term == 30)
-            {
-                pop(main_stack);
-                // printf("Chala\n");
-            }
-            else{
-                // printf("%d %d\n",main_stack->arr[main_stack->top].term,curr_tok->token_name);
-                // printf("fkin error!");
-                flag = 1;
-                break;
-            }
+//                 curr_tok=curr_tok->nextToken;
+//             }
+//             else if(main_stack->arr[main_stack->top].term == 30)
+//             {
+//                 pop(main_stack);
+//                 // printf("Chala\n");
+//             }
+//             else{
+//                 // printf("%d %d\n",main_stack->arr[main_stack->top].term,curr_tok->token_name);
+//                 // printf("fkin error!");
+//                 flag = 1;
+//                 break;
+//             }
             
-        }
-        count++;
-        if(flag)
-            break;
+//         }
+//         count++;
+//         if(flag)
+//             break;
 
-    }while(main_stack->top!=-1);
+//     }while(main_stack->top!=-1);
 
-    if(curr_tok==NULL){
-        printf("Yayy!");
-    }
+//     if(curr_tok==NULL){
+//         printf("Yayy!");
+//     }
 
 
-}
+// }

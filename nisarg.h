@@ -1,5 +1,5 @@
 #include "grammar.h"
-
+#include <assert.h>
 
 
 
@@ -19,3 +19,4 @@ rhs_node pop(stack *s);
 
 void createParseTree( parseTree *t, tokenStream *s, grammar G);
 
+void runVal(int x);

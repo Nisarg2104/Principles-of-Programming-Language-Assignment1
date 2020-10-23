@@ -32,8 +32,9 @@ typedef struct Grammar grammar;
 typedef struct parseTree{
     struct parseTree* parent;
     struct parseTree * left_most_child;
-    struct parseTree* right_most_child;
     struct parseTree* right_sibling;
+    struct parseTree* currNode;
+    int linenum;
     union 
     {
         terminal term;
@@ -46,7 +47,3 @@ typedef struct parseTree{
 void readGrammar(char* filename,cell_node *grammar);
 int** hardCodedRules();
 int** initialiseRules(int **rules);
-
-
-
-

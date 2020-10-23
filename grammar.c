@@ -51,8 +51,6 @@ void readGrammar(char* filename,cell_node *grammar) {
         }
         // printf("\n");
 
-        
-
         while(curr!=NULL) {
             printf("%d:",curr->is_terminal);
             if(curr->is_terminal) {
@@ -73,8 +71,6 @@ void readGrammar(char* filename,cell_node *grammar) {
 
 
     }
-
-    
 
 }
 int** hardCodedRules()

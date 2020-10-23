@@ -23,17 +23,17 @@ TD_INIT -> of integer semicol TD_VALS.
 THD_INIT ->	sq_op sq_cl of integer semicol THD_VALS.
 TD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST cb_cl TD_VALS_DASH.
 TD_VALS_DASH -> TD_VALS.
-TD_VALS_DASH ->	EPS.
-INT_LIST ->	num INT_LIST_DASH.
+TD_VALS_DASH -> EPS.
+INT_LIST -> num INT_LIST_DASH.
 INT_LIST_DASH -> EPS.
 INT_LIST_DASH -> semicol INT_LIST.
-THD_VALS ->	r1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl THD_VALS_DASH.
+THD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl THD_VALS_DASH.
 THD_VALS_DASH -> THD_VALS.
 THD_VALS_DASH -> EPS.
 INT_LIST_LIST -> INT_VAR_LIST INT_LIST_LIST_DASH.
 INT_LIST_LIST_DASH -> semicol INT_LIST_LIST.
 INT_LIST_LIST_DASH -> EPS.
-INT_VAR_LIST ->	num INT_VAR_LIST_DASH.
+INT_VAR_LIST -> num INT_VAR_LIST_DASH.
 INT_VAR_LIST_DASH -> EPS.
 INT_VAR_LIST_DASH -> INT_VAR_LIST.
 ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl ARRAY_RANGE_DASH.
@@ -45,17 +45,24 @@ VAR_LIST -> id MULT_ID.
 MULT_ID -> id MULT_ID_DASH.
 MULT_ID_DASH ->	EPS.
 MULT_ID_DASH ->	MULT_ID.
-ASSIGN_STATEMENT ->	id eq_op EXPR semicol.
+ASSIGN_STATEMENT ->	ID1 eq_op EXPR semicol.
 EXPR ->	TERM EXPR_DASH.
-EXPR_DASH -> ASO_OP TERM EXPR_DASH.
+EXPR_DASH -> ASO_OP TERM EXPR_DASH .
 EXPR_DASH -> EPS.
 ASO_OP -> add_op.
 ASO_OP -> sub_op.
 ASO_OP -> or_op.
-TERM -> IDX TERM_DASH.
-TERM_DASH -> MDA_OP IDX TERM_DASH.
+TERM -> IDX1 TERM_DASH.
+TERM_DASH -> MDA_OP IDX1 TERM_DASH.
 TERM_DASH -> EPS.
 MDA_OP -> mul_op.
 MDA_OP -> div_op.
 MDA_OP -> and_op.
 EPS -> .
+ID1 -> id ID_DASH.
+ID_DASH -> EPS.
+ID_DASH -> sq_op IDX IDX_LIST sq_cl.
+IDX_LIST -> EPS.
+IDX_LIST -> IDX IDX_LIST.
+IDX1 -> ID1.
+IDX1 -> num.

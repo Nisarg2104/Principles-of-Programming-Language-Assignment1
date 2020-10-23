@@ -1,49 +1,61 @@
 PROGRAM -> program rbs cb_op STATEMENTS cb_cl
 STATEMENTS -> STATEMENT STATEMENTS
-STATEMENTS -> eps
-STATEMENT -> DECLARE_STATEMENT
+STATEMENTS -> EPS
+STATEMENT -> declare DECLARE_STATEMENT
 STATEMENT -> ASSIGN_STATEMENT
 DECLARE_STATEMENT -> SINGLE_DECLARE
 DECLARE_STATEMENT -> MULTI_DECLARE
-SINGLE_DECLARE -> declare id col TYPE
-MULTI_DECLARE -> declare list of variables VAR_LIST col TYPE semicol
-TYPE -> PRIM_TYPE semicol
-TYPE -> ARRAY
-ARRAY -> RECTANGULAR
+SINGLE_DECLARE -> id col TYPE
+MULTI_DECLARE -> list of variables VAR_LIST col TYPE
+TYPE ->	PRIM_TYPE semicol
+TYPE ->	ARRAY
+ARRAY -> RECTANGULAR semicol
 ARRAY -> JAGGED
 PRIM_TYPE -> integer
 PRIM_TYPE -> boolean
 PRIM_TYPE -> real
 RECTANGULAR -> array ARRAY_RANGE of integer
 JAGGED -> jagged array sq_op num ddot num sq_cl JAGGED_INIT
-JAGGED_INIT -> TD_INIT
-JAGGED_INIT -> THD_INIT
-TD_INIT -> sq_op sq_cl of integer semicol TD_VALS
-THD_INIT -> sq_op sq_cl sq_op sq_cl of integer semicol THD_VALS
-TD_VALS -> r1 sp_op num sq_cl col size num col values cb_op INT_LIST cb_cl TD_VALS
-TD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST cb_cl
-INT_LIST -> num semicol INT_LIST
-INT_LIST -> num
-THD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl THD_VALS
-THD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl
-INT_LIST_LIST -> INT_VAR_LIST semicol INT_LIST_LIST
-INT_LIST_LIST -> INT_VAR_LIST
-INT_VAR_LIST -> num INT_VAR_LIST
-INT_VAR_LIST -> num
-ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl ARRAY_RANGE
-ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl
+JAGGED_INIT -> sq_op sq_cl JAGGED_INIT_DASH
+JAGGED_INIT_DASH -> TD_INIT
+JAGGED_INIT_DASH -> THD_INIT
+TD_INIT -> of integer semicol TD_VALS
+THD_INIT ->	sq_op sq_cl of integer semicol THD_VALS
+TD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST cb_cl TD_VALS_DASH
+TD_VALS_DASH -> TD_VALS
+TD_VALS_DASH -> EPS
+INT_LIST -> num INT_LIST_DASH
+INT_LIST_DASH -> EPS
+INT_LIST_DASH -> semicol INT_LIST
+THD_VALS -> r1 sq_op num sq_cl col size num col values cb_op INT_LIST_LIST cb_cl THD_VALS_DASH
+THD_VALS_DASH -> THD_VALS
+THD_VALS_DASH -> EPS
+INT_LIST_LIST -> INT_VAR_LIST INT_LIST_LIST_DASH
+INT_LIST_LIST_DASH -> semicol INT_LIST_LIST
+INT_LIST_LIST_DASH -> EPS
+INT_VAR_LIST -> num INT_VAR_LIST_DASH
+INT_VAR_LIST_DASH -> EPS
+INT_VAR_LIST_DASH -> INT_VAR_LIST
+ARRAY_RANGE -> sq_op IDX ddot IDX sq_cl ARRAY_RANGE_DASH
+ARRAY_RANGE_DASH -> ARRAY_RANGE
+ARRAY_RANGE_DASH -> EPS
 IDX -> id
 IDX -> num
 VAR_LIST -> id MULT_ID
-MULT_ID -> id MULT_ID
-MULT_ID -> id
-ASSIGN_STATEMENT -> id EQ_OP EXPR
-EXPR -> EXPR AS_OP TERM
-EXPR -> TERM
-AS_OP -> add_op
-AS_OP -> sub_op
-TERM -> TERM MD_OP IDX
-TERM -> IDX
-MD_OP -> mul_op
-MD_OP -> div_op
-
+MULT_ID -> id MULT_ID_DASH
+MULT_ID_DASH ->	EPS
+MULT_ID_DASH ->	MULT_ID
+ASSIGN_STATEMENT ->	id eq_op EXPR semicol
+EXPR ->	TERM EXPR_DASH
+EXPR_DASH -> ASO_OP TERM EXPR_DASH 
+EXPR_DASH -> EPS
+ASO_OP -> add_op
+ASO_OP -> sub_op
+ASO_OP -> or_op
+TERM -> IDX TERM_DASH
+TERM_DASH -> MDA_OP IDX TERM_DASH
+TERM_DASH -> EPS
+MDA_OP -> mul_op
+MDA_OP -> div_op
+MDA_OP -> and_op
+EPS -> eps

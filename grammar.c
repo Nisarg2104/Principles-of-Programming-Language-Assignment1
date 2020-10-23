@@ -69,16 +69,14 @@ void readGrammar(char* filename,cell_node *grammar) {
 
         linenum++;
 
-        fclose(grFile);
-
-
     }
+    fclose(grFile);
 
 }
 int** hardCodedRules()
 {
-    int **p = malloc(39*(sizeof(int*)));
-    for(int i=0;i<39;i++) {
+    int **p = malloc(43*(sizeof(int*)));
+    for(int i=0;i<43;i++) {
         p[i] = malloc(31*sizeof(int));
         memset(p[i], -1, 31*sizeof(int));
     }
@@ -104,7 +102,7 @@ int** initialiseRules(int **rules)
     rules[TYPE][jagged] = 10;
     rules[ARRAY][array] = 11;
     rules[ARRAY][jagged] = 12;
-    rules[PRIM_TYPE][integer] = 13;
+    rules[PRIM_TYPE][integer] = 13; 
     rules[PRIM_TYPE][boolean] = 14;
     rules[PRIM_TYPE][real] = 15;
     rules[RECTANGULAR][array] = 16;
@@ -176,12 +174,33 @@ int** initialiseRules(int **rules)
     rules[EPS][or_op] = 60;
     rules[EPS][sub_op] = 60;
     rules[EPS][add_op] = 60;
+    rules[EPS][mul_op] = 60;
+    rules[EPS][div_op] = 60;
+    rules[EPS][and_op] = 60;
+    rules[EPS][eq_op] = 60;
     rules[EPS][of] = 60;
     rules[EPS][cb_cl] = 60;
+    rules[EPS][sq_cl] = 60;
     rules[EPS][id] = 60;
     rules[EPS][semicol] = 60;
     rules[EPS][declare] = 60;
-    rules[EPS][col] = 60;   
+    rules[EPS][col] = 60;
+    rules[ID1][id] = 61;
+    rules[ID_DASH][add_op] = 62;
+    rules[ID_DASH][sub_op] = 62;
+    rules[ID_DASH][mul_op] = 62;
+    rules[ID_DASH][div_op] = 62;
+    rules[ID_DASH][and_op] = 62;
+    rules[ID_DASH][or_op] = 62;
+    rules[ID_DASH][eq_op] = 62;
+    rules[ID_DASH][semicol] = 62;
+    rules[ID_DASH][sq_op] = 63;
+    rules[IDX_LIST][sq_cl] = 64;
+    rules[IDX_LIST][num] = 65;
+    rules[IDX_LIST][id] = 65;
+    rules[IDX1][id] = 66;
+    rules[IDX1][num] = 67;
+
 
      //for(int i = 0;i<39;i++)
      //{

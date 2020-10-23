@@ -189,6 +189,14 @@ non_terminal returnNonTerminalVal(char* lex) {
         return MDA_OP;
     else if(!strcmp(lex,"EPS"))
         return EPS;
+    else if(!strcmp(lex,"ID1"))
+        return ID1;
+    else if(!strcmp(lex,"IDX1"))
+        return IDX1;
+    else if(!strcmp(lex,"ID_DASH"))
+        return ID_DASH;
+    else if(!strcmp(lex,"IDX_LIST"))
+        return IDX_LIST;
 
 
 }

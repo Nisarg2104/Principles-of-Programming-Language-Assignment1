@@ -104,7 +104,7 @@ void runTerm(int x)
 
 char** initNonTerms() {
     FILE* non_terms = fopen("non_terminals.txt","r");
-    char**tokens = malloc(39*sizeof(char*));
+    char**tokens = malloc(43*sizeof(char*));
     int index = 0;
     char BUF [MAX_VAR_NAME_LEN];
     while(!feof(non_terms)) {

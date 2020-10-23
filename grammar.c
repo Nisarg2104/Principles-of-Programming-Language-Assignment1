@@ -14,7 +14,7 @@ void readGrammar(char* filename,cell_node *grammar) {
         grammar[linenum].lhs = returnNonTerminalVal(token);
         
         rhs_node* rhs = grammar[linenum].first_rhs;
-
+        rhs_node* curr;
         // printf("%s -> ", token);
 
         token = strtok(NULL," \t\r\n");
@@ -24,11 +24,12 @@ void readGrammar(char* filename,cell_node *grammar) {
         while(token != NULL) {
 
             if(rhs==NULL) {
-                grammar[linenum].first_rhs = malloc(sizeof(rhs_node));
+                grammar[linenum].first_rhs = (rhs_node*) malloc(sizeof(rhs_node));
                 rhs = grammar[linenum].first_rhs;
+                grammar[linenum].first_rhs->prev = NULL;
             }
             else {
-                rhs->next = malloc(sizeof(rhs_node));
+                rhs->next = (rhs_node*) malloc(sizeof(rhs_node));
                 rhs->next->prev = rhs;
                 rhs = rhs->next;
             }
@@ -45,27 +46,28 @@ void readGrammar(char* filename,cell_node *grammar) {
 
             // printf("%s ",token);
             grammar[linenum].last_rhs = rhs;
+            curr = rhs;
             token = strtok(NULL," \t\r\n");            
         }
         // printf("\n");
 
-        rhs_node* curr = grammar[linenum].last_rhs;
+        
 
-        // while(curr!=NULL) {
-        //     printf("%d:",curr->is_terminal);
-        //     if(curr->is_terminal) {
-        //         printf("%d\t",curr->term);
-        //     }
-        //     else
-        //     {
-        //         printf("%d\t",curr->non_term);
-        //     }
+        while(curr!=NULL) {
+            printf("%d:",curr->is_terminal);
+            if(curr->is_terminal) {
+                printf("%d\t",curr->term);
+            }
+            else
+            {
+                printf("%d\t",curr->non_term);
+            }
 
-        //     curr = curr->prev;
+            curr = curr->prev;
             
-        // }
+        }
 
-        // printf("\n");
+        printf("\n");
 
         linenum++;
 
@@ -195,6 +197,11 @@ int main() {
 
         grammar G;
         G.grammar_rules = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
+        for(int  i = 0;i<NO_OF_RULES;i++)
+        {
+            (G.grammar_rules)[i].first_rhs = NULL;
+            (G.grammar_rules)[i].last_rhs = NULL;
+        }
         char grammarname[50] = "grammar.txt";
         readGrammar(grammarname,G.grammar_rules);
         char programname[50] = "program.txt";

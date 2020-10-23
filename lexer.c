@@ -4,7 +4,7 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     FILE* code = fopen(filename,"r");
     tokenStream *head = s;
     tokenStream* curr = head;
-    char* BUF = (char*)malloc(200);
+    char* BUF = (char*)calloc(200,1);
     int linenum = 0;
     while(!feof(code)){
         linenum++;
@@ -16,8 +16,9 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
    
         while( token != NULL) 
         {
-            curr->nextToken = malloc(sizeof(tokenStream));
+            curr->nextToken = calloc(1,sizeof(tokenStream));
             curr = curr->nextToken;
+            curr->nextToken = NULL;
             curr->line_num = linenum;
             
             strcpy(curr->lexeme,token);

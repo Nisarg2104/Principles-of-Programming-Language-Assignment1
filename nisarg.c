@@ -2,10 +2,10 @@
 #include<assert.h>
 
 stack* create_stack(){
-    stack *s = (stack *) malloc(sizeof(stack));
+    stack *s = (stack *) calloc(1,sizeof(stack));
     s->capacity=1;
     s->top=-1;
-    s->arr=(rhs_node *)malloc(sizeof(rhs_node));
+    s->arr=(rhs_node *)calloc(1,sizeof(rhs_node));
     return s;
 }
 
@@ -129,12 +129,12 @@ void runTerm(int x)
 
 char** initNonTerms() {
     FILE* non_terms = fopen("non_terminals.txt","r");
-    char**tokens = malloc(39*sizeof(char*));
+    char**tokens = calloc(44,sizeof(char*));
     int index = 0;
     char BUF [MAX_VAR_NAME_LEN];
     while(!feof(non_terms)) {
         fgets(BUF,MAX_VAR_NAME_LEN+1,non_terms);
-        tokens[index] = (char*)malloc(MAX_VAR_NAME_LEN);
+        tokens[index] = (char*)calloc(MAX_VAR_NAME_LEN,1);
         strcpy(tokens[index],strtok(BUF,","));
         index++;
     }

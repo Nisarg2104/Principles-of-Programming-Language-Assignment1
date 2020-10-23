@@ -104,12 +104,12 @@ void runTerm(int x)
 
 char** initNonTerms() {
     FILE* non_terms = fopen("non_terminals.txt","r");
-    char**tokens = malloc(43*sizeof(char*));
+    char**tokens = calloc(43,sizeof(char*));
     int index = 0;
     char BUF [MAX_VAR_NAME_LEN];
     while(!feof(non_terms)) {
         fgets(BUF,MAX_VAR_NAME_LEN+1,non_terms);
-        tokens[index] = (char*)malloc(MAX_VAR_NAME_LEN);
+        tokens[index] = (char*)calloc(MAX_VAR_NAME_LEN,1);
         strcpy(tokens[index],strtok(BUF,","));
         index++;
     }
@@ -157,7 +157,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         {
             // Make a New Node of Parse Tree
             // Join it with Curr
-            parseTree* nodeToAdd = malloc(sizeof(parseTree));
+            parseTree* nodeToAdd = calloc(1,sizeof(parseTree));
             nodeToAdd->parent = traverseNode;
             nodeToAdd->left_most_child = NULL;
             nodeToAdd->right_sibling = NULL;

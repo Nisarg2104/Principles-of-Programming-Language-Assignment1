@@ -6,7 +6,7 @@ void readGrammar(char* filename,cell_node *grammar) {
     FILE* grFile = fopen(filename, "r");
     
     while(!feof(grFile)) {
-        char* BUF = malloc(200);
+        char* BUF = calloc(200,1);
         fgets(BUF,200,grFile);
         char *token;
         token = strtok(BUF, " \t\r\n");
@@ -24,12 +24,12 @@ void readGrammar(char* filename,cell_node *grammar) {
         while(token != NULL) {
 
             if(rhs==NULL) {
-                grammar[linenum].first_rhs = (rhs_node*) malloc(sizeof(rhs_node));
+                grammar[linenum].first_rhs = (rhs_node*) calloc(1,sizeof(rhs_node));
                 rhs = grammar[linenum].first_rhs;
                 grammar[linenum].first_rhs->prev = NULL;
             }
             else {
-                rhs->next = (rhs_node*) malloc(sizeof(rhs_node));
+                rhs->next = (rhs_node*) calloc(1,sizeof(rhs_node));
                 rhs->next->prev = rhs;
                 rhs = rhs->next;
             }
@@ -75,9 +75,9 @@ void readGrammar(char* filename,cell_node *grammar) {
 }
 int** hardCodedRules()
 {
-    int **p = malloc(43*(sizeof(int*)));
+    int **p = calloc(43,(sizeof(int*)));
     for(int i=0;i<43;i++) {
-        p[i] = malloc(31*sizeof(int));
+        p[i] = calloc(31,sizeof(int));
         memset(p[i], -1, 31*sizeof(int));
     }
 
@@ -213,7 +213,7 @@ int** initialiseRules(int **rules)
 int main() {
 
         grammar G;
-        G.grammar_rules = (cell_node*)malloc(NO_OF_RULES*sizeof(cell_node));
+        G.grammar_rules = (cell_node*)calloc(NO_OF_RULES,sizeof(cell_node));
         for(int  i = 0;i<NO_OF_RULES;i++)
         {
             (G.grammar_rules)[i].first_rhs = NULL;
@@ -222,9 +222,9 @@ int main() {
         char grammarname[50] = "grammar.txt";
         readGrammar(grammarname,G.grammar_rules);
         char programname[50] = "program.txt";
-        tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
+        tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
         tokeniseSourcecode(programname,head);
-        parseTree *t = malloc(sizeof(parseTree));
+        parseTree *t = calloc(1,sizeof(parseTree));
         createParseTree(t,head,G); // segfault in this
         return 0;
 }

@@ -51,21 +51,21 @@ void readGrammar(char* filename,cell_node *grammar) {
 
         rhs_node* curr = grammar[linenum].last_rhs;
 
-        while(curr!=NULL) {
-            printf("%d:",curr->is_terminal);
-            if(curr->is_terminal) {
-                printf("%d\t",curr->term);
-            }
-            else
-            {
-                printf("%d\t",curr->non_term);
-            }
+        // while(curr!=NULL) {
+        //     printf("%d:",curr->is_terminal);
+        //     if(curr->is_terminal) {
+        //         printf("%d\t",curr->term);
+        //     }
+        //     else
+        //     {
+        //         printf("%d\t",curr->non_term);
+        //     }
 
-            curr = curr->prev;
+        //     curr = curr->prev;
             
-        }
+        // }
 
-        printf("\n");
+        // printf("\n");
 
         linenum++;
 
@@ -200,7 +200,7 @@ int main() {
         char programname[50] = "program.txt";
         tokenStream* head = (tokenStream*)malloc(sizeof(tokenStream)); 
         tokeniseSourcecode(programname,head);
-        parseTree *t;
+        parseTree *t = malloc(sizeof(parseTree));
         createParseTree(t,head,G); // segfault in this
         return 0;
 }

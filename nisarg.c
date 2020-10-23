@@ -149,13 +149,13 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
     
     t=(parseTree*) malloc(sizeof(parseTree));
     t->left_most_child=NULL;
-    t->nt=PROGRAM;
+    t->non_term=PROGRAM;
+    t->is_terminal=false;
     t->right_most_child=NULL;
     t->parent=NULL;
 
     parseTree *curr;
     curr=t;
-    // // change do while to for 1 iteration only
     int count = 0;
     do{
 
@@ -165,7 +165,7 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
         int curr_rule =  rules[temp.non_term][curr_tok->token_name]; 
         
         cell_node curr_grammar = G.grammar_rules[curr_rule];
-        printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d ",temp.non_term,curr_tok->token_name,curr_rule);
+        printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d\n",temp.non_term,curr_tok->token_name,curr_rule);
         if(curr_grammar.lhs != temp.non_term)
         {
             printf("%d\n",count);

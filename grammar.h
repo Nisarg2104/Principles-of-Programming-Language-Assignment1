@@ -34,8 +34,13 @@ typedef struct parseTree{
     struct parseTree * left_most_child;
     struct parseTree* right_most_child;
     struct parseTree* right_sibling;
-
-    non_terminal nt;
+    union 
+    {
+        terminal term;
+        non_terminal non_term;
+    };
+    char lexeme [MAX_VAR_NAME_LEN];
+    bool is_terminal;
 } parseTree;
 
 void readGrammar(char* filename,cell_node *grammar);

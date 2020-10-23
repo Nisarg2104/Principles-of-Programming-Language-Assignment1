@@ -33,6 +33,8 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
         // printf(" %s %d\n",curr->lexeme,curr->line_num);
         curr = curr->nextToken;
     }
+
+    fclose(code);
     
 }
 

@@ -69,6 +69,8 @@ void readGrammar(char* filename,cell_node *grammar) {
 
         linenum++;
 
+        fclose(grFile);
+
 
     }
 

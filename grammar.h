@@ -35,6 +35,7 @@ typedef struct parseTree{
     struct parseTree* right_sibling;
     struct parseTree* currNode;
     int linenum;
+    int rulenum;
     union 
     {
         terminal term;

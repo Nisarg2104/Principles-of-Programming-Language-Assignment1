@@ -18,5 +18,7 @@ rhs_node pop(stack *s);
 
 
 void createParseTree( parseTree *t, tokenStream *s, grammar G);
+void printParseTree(parseTree *t);
 
-void runVal(int x);
+void runTerm(int x);
+char** initNonTerms();

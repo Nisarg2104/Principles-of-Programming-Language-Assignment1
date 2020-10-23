@@ -25,7 +25,7 @@ rhs_node pop(stack *s){
     }
     return s->arr[s->top+1];
 }
-void runVal(int x)
+void runTerm(int x)
 {
     switch(x)
     {
@@ -127,12 +127,27 @@ void runVal(int x)
     }
 }
 
+char** initNonTerms() {
+    FILE* non_terms = fopen("non_terminals.txt","r");
+    char**tokens = malloc(39*sizeof(char*));
+    int index = 0;
+    char BUF [MAX_VAR_NAME_LEN];
+    while(!feof(non_terms)) {
+        fgets(BUF,MAX_VAR_NAME_LEN+1,non_terms);
+        tokens[index] = (char*)malloc(MAX_VAR_NAME_LEN);
+        strcpy(tokens[index],strtok(BUF,","));
+        index++;
+    }
+    fclose(non_terms);
+    return tokens;
+}
+// link bhejo koihttps://meet.google.com/cxy-zpti-xxp?authuser=1
+
 // void createParseTree( parseTree *t, tokenStream *s, grammar G){
 //     stack *main_stack;
 //     int ** rules ;
 //     rules=hardCodedRules();
 //     rules= initialiseRules(rules);
-
     
 //     s = s->nextToken;
 //     // printf("%s",s->lexeme); 

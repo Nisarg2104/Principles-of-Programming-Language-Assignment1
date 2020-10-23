@@ -1,4 +1,121 @@
-#include "nisarg.h"
+#include "parser.h"
+
+void runTerm(int x)
+{
+    switch(x)
+    {
+        case 0:
+            printf("&&& ");
+            break;
+        case 1:
+            printf("/ ");
+            break;
+        case 2:
+            printf("* ");
+            break;
+        case 3:
+            printf("||| ");
+            break;
+        case 4:
+            printf("- ");
+            break;
+        case 5:
+            printf("+ ");
+            break;
+        case 6:
+            printf("= ");
+            break;
+        case 7:
+            printf("ID ");
+            break;
+        case 8:
+            printf("NUM ");
+            break;
+        case 9:
+            printf("] ");
+            break;
+        case 10:
+            printf(".. ");
+            break;
+        case 11:
+            printf("[ ");
+            break;
+        case 12:
+            printf("; ");
+            break;
+        case 13:
+            printf("} ");
+            break;
+        case 14:
+            printf("{ ");
+            break;
+        case 15:
+            printf("values ");
+            break;
+        case 16:
+            printf(": ");
+            break;
+        case 17:
+            printf("size ");
+            break;
+        case 18:
+            printf("R1 ");
+            break;
+        case 19:
+            printf("integer ");
+            break;
+        case 20:
+            printf("of ");
+            break;
+        case 21:
+            printf("array ");
+            break;
+        case 22:
+            printf("jagged ");
+            break;
+        case 23:
+            printf("real ");
+            break;
+        case 24:
+            printf("boolean ");
+            break;
+        case 25:
+            printf("variables ");
+            break;
+        case 26:
+            printf("list ");
+            break;
+        case 27:
+            printf("declare ");
+            break;
+        case 28:
+            printf("rbs ");
+            break;
+        case 29:
+            printf("program ");
+            break;
+        case 30:
+            printf("eps ");
+            break;
+        default:
+            printf("Token Don't Exist");
+    }
+}
+
+char** initNonTerms() {
+    FILE* non_terms = fopen("non_terminals.txt","r");
+    char**tokens = malloc(39*sizeof(char*));
+    int index = 0;
+    char BUF [MAX_VAR_NAME_LEN];
+    while(!feof(non_terms)) {
+        fgets(BUF,MAX_VAR_NAME_LEN+1,non_terms);
+        tokens[index] = (char*)malloc(MAX_VAR_NAME_LEN);
+        strcpy(tokens[index],strtok(BUF,","));
+        index++;
+    }
+    fclose(non_terms);
+    return tokens;
+}
 
 
 void createParseTree(parseTree *t, tokenStream *s, grammar G) {
@@ -78,7 +195,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             {
                 strcpy(traverseNode->lexeme,s->lexeme);
                 traverseNode->linenum = s->line_num;
-                runVal(traverseNode->term);
+                runTerm(traverseNode->term);
                 printf("\n");
                 s = s->nextToken;
                 if(s==NULL) break;
@@ -113,5 +230,43 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
     }
     assert(s == NULL);
     printf("YAAYYY !!!\n");
+    printParseTree(t);
 
+}
+
+void printParseTree(parseTree *t) {
+    parseTree* traverseNode = t;
+    printf("%d\n",t->non_term);
+    char** printNonTerm = initNonTerms();
+    int depth = 0;
+    int count = 0;
+    int flag = 0;
+    do {
+        count++;
+        traverseNode->currNode = traverseNode->left_most_child;
+        traverseNode->is_terminal?runTerm(traverseNode->term):printf("%s ",printNonTerm[traverseNode->non_term]);
+        traverseNode->is_terminal?printf("terminal\n"):printf("non terminal\n");
+        
+        if(traverseNode->currNode != NULL)
+            traverseNode = traverseNode->currNode;
+        else
+        {
+            while(traverseNode->is_terminal || traverseNode->currNode->right_sibling == NULL)
+            {
+                traverseNode = traverseNode->parent;
+                if(traverseNode == NULL)
+                {
+                    flag = 1;
+                    break;
+                }
+            }
+            if(flag)
+                break;
+            traverseNode->currNode = traverseNode->currNode->right_sibling;
+            traverseNode = traverseNode->currNode;
+        }
+
+    }while(traverseNode->parent != NULL || traverseNode->right_sibling != NULL);
+
+    printf("%d\n",count);
 }

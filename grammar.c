@@ -183,12 +183,12 @@ int** initialiseRules(int **rules)
     rules[EPS][declare] = 60;
     rules[EPS][col] = 60;   
 
-    // for(int i = 0;i<39;i++)
-    // {
-    //     for(int j = 0;j<31;j++)
-    //         printf("%d\t",rules[i][j]);
-    //     printf("\n");
-    // }
+     //for(int i = 0;i<39;i++)
+     //{
+     //    for(int j = 0;j<31;j++)
+     //        printf("rules[%d][%d]=%d\t",i,j,rules[i][j]);
+     //    printf("\n");
+     //}
     return rules;
 }
 int main() {

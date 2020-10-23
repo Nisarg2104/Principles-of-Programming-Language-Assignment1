@@ -165,7 +165,7 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
         int curr_rule =  rules[temp.non_term][curr_tok->token_name]; 
         
         cell_node curr_grammar = G.grammar_rules[curr_rule];
-        printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d",temp.non_term,curr_tok->token_name,curr_rule);
+        printf("temp.non_term= %d curr_tok->token_name=%d curr_rule=%d ",temp.non_term,curr_tok->token_name,curr_rule);
         if(curr_grammar.lhs != temp.non_term)
         {
             printf("%d\n",count);
@@ -176,12 +176,13 @@ void createParseTree( parseTree *t, tokenStream *s, grammar G){
         rhs_node *curr_rhs=curr_grammar.last_rhs;
 
         while(curr_rhs!=NULL){
-        if(main_stack->arr[main_stack->top].is_terminal)
-                printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].term);
-            else
-            {
-                printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].non_term);
-            }            push(main_stack,*curr_rhs);
+        //if(main_stack->arr[main_stack->top].is_terminal)
+             //   printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].term);
+            //else
+            //{
+            //    printf("%d %d\n",main_stack->arr[main_stack->top].is_terminal,main_stack->arr[main_stack->top].non_term);
+            //}
+			            push(main_stack,*curr_rhs);
         
             if(curr_rhs->is_terminal)
                 printf("%d %d\n",curr_rhs->is_terminal,curr_rhs->term);

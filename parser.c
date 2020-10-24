@@ -151,6 +151,26 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         temp.non_term = traverseNode->non_term;
         int ruleNum =  rules[temp.non_term][s->token_name]; 
         traverseNode->rulenum = ruleNum;
+        int currlinenum = 0;
+        if(ruleNum == -1)
+        {
+            currlinenum = s->line_num;
+            printf("Type Error Here at Line No. : %d\n",currlinenum);
+            while(ruleNum == -1)
+            {
+                if(s->line_num != currlinenum)
+                {
+                    printf("Type Error Here at Line No. : %d\n",currlinenum);
+                    currlinenum = s->line_num;
+                }
+                s=s->nextToken; 
+                if(s==NULL) break;
+                // printf("%s\n",s->lexeme);
+                ruleNum = rules[temp.non_term][s->token_name];
+            }
+                
+            
+        }
         cell_node curr_grammar = G.grammar_rules[ruleNum];
         assert(curr_grammar.lhs == temp.non_term);
 

@@ -38,26 +38,27 @@ typedef struct{
    rect_array* first;
    rect_array* last;
 } rect_array_ranges;
+
 typedef struct{
     char** ranges;
     int index;
-    int high;
-    int low;
 } tdJArrRange;
+
 typedef struct thd_sub_range{
     char*subRange;
     struct thd_sub_range* next;
 } thd_sub_sub_range;
+
 typedef struct {
-    thd_sub_sub_range* subSubRanges;
+    thd_sub_sub_range** subSubRanges;
+    thd_sub_sub_range** lastSubSubRanges;
     int subRangeCount;
+    int index;
 }thd_sub_range;
 
 typedef struct {
-    thd_sub_range subRanges;
+    thd_sub_range* subRanges;
     int index;
-    int high;
-    int low;
 } thdJArrRange;
 
 
@@ -67,11 +68,12 @@ typedef struct{
     char* typeName;
     int dimensions;
     char* range_R1 [2];
-
+    int high;
+    int low;
     union {        
         rect_array_ranges* rectArrayRanges;
         tdJArrRange tdjaggedArrayRange;
-        int** thdJaggedArrayRange;
+        thdJArrRange thdJaggedArrayRange;
     };    
 
 } typeExpression;

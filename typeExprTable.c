@@ -68,7 +68,7 @@ do
             else
             {
                 currTypeExpression->dataType = _array;
-                currTypeExpression->dimensions = 1;
+                currTypeExpression->dimensions = 0;
             }
             
         }
@@ -80,93 +80,133 @@ do
     }
 
     if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
-        if(currTypeExpression->dimensions == 1) {
+        if(currTypeExpression->dimensions == 0) {
             if(traverseNode->parent->right_sibling->term == ddot) {
                 currTypeExpression->range_R1[0] = traverseNode->lexeme;
             }
             else {
                 currTypeExpression->range_R1[1] = traverseNode->lexeme;
+                currTypeExpression->dimensions++;
             }
         }
         else {
-            if(currTypeExpression->dimensions == 2) {
-                currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
-                currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
-                currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
-
+            if(currTypeExpression->dimensions == 1) {
+                
                 if(traverseNode->parent->right_sibling->term == ddot) {
+                    currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
+                    currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
+                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
                     currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
                 }
                 else {
                     currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
                 }
             }
             else {
-                currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
-                currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
 
                 if(traverseNode->parent->right_sibling->term == ddot) {
+                    currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
+                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
                     currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
                 }
                 else {
                     currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
                 }
             }
             
         }
-        currTypeExpression->dimensions++;
     }
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
-        if(currTypeExpression->dimensions == 1) {
+        if(currTypeExpression->dimensions == 0) {
             if(traverseNode->parent->right_sibling->term == ddot) {
                 currTypeExpression->range_R1[0] = traverseNode->lexeme;
-                currTypeExpression->tdjaggedArrayRange.low = atoi(traverseNode->lexeme);
             }
             else {
                 currTypeExpression->range_R1[1] = traverseNode->lexeme;
-                if(currTypeExpression->dataType == _jagged) {
-                    currTypeExpression->tdjaggedArrayRange.high = atoi(traverseNode->lexeme);
-                    currTypeExpression->tdjaggedArrayRange.ranges = calloc(currTypeExpression->tdjaggedArrayRange.high-currTypeExpression->tdjaggedArrayRange.low+1,sizeof(char*));
-                    currTypeExpression->tdjaggedArrayRange.index = 0;
-                }
+                currTypeExpression->dimensions++;
             }
         }
         else {
-            if(currTypeExpression->dimensions == 2) {
-                currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
-                currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
-                currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
-
+            if(currTypeExpression->dimensions == 1) {
+                
                 if(traverseNode->parent->right_sibling->term == ddot) {
+                    currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
+                    currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
+                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
                     currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
                 }
                 else {
                     currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
                 }
             }
             else {
-                currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
-                currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
 
                 if(traverseNode->parent->right_sibling->term == ddot) {
+                    currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
+                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
                     currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
                 }
                 else {
                     currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
                 }
             }
             
         }
-        currTypeExpression->dimensions++;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == JAGGED) {
+        if(traverseNode->right_sibling->term == ddot) {
+
+            currTypeExpression->range_R1[0] = traverseNode->lexeme;
+            currTypeExpression->low = atoi(traverseNode->lexeme);
+        }
+        else {
+            currTypeExpression->range_R1[1] = traverseNode->lexeme;
+            currTypeExpression->high = atoi(traverseNode->lexeme);
+        }
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == of && traverseNode->parent->non_term == TD_INIT) {
+        currTypeExpression->tdjaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(char*));
+        currTypeExpression->tdjaggedArrayRange.index = 0;
     }
 
     if(traverseNode->is_terminal && traverseNode->term == sq_op && traverseNode->parent->non_term == THD_INIT) {
         currTypeExpression->dimensions = 3;
+        currTypeExpression->thdJaggedArrayRange.subRanges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(thd_sub_range));
+        currTypeExpression->thdJaggedArrayRange.index = 0;
     }
 
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_LIST) {
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == col) {
         currTypeExpression->tdjaggedArrayRange.ranges[currTypeExpression->tdjaggedArrayRange.index] = traverseNode->lexeme;
         currTypeExpression->tdjaggedArrayRange.index++;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == col) {
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount = atoi(traverseNode->lexeme);
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges = calloc(atoi(traverseNode->lexeme),sizeof(thd_sub_sub_range*));
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges = currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges;
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index = 0;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST) {
+        thd_sub_sub_range* curr = currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index];
+        curr->next = calloc(1,sizeof(thd_sub_sub_range));
+        curr = curr->next;
+        curr->subRange = traverseNode->lexeme;
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index] = curr;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == INT_LIST_LIST_DASH) {
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index++;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS) {
+        currTypeExpression->thdJaggedArrayRange.index++;
     }
 
     //propogation code starts here
@@ -188,14 +228,30 @@ do
                     parseTree currID = pop(mainStack);
                     printf("%s ", currID.lexeme);
                     currID.type = currTypeExpression;
+                    if(currTypeExpression->dataType == _prim) {
+                        printf("%s ",currTypeExpression->typeName);
+                    }
                     if(currTypeExpression->dataType == _array) {
                         printf("[ %s .. %s ] ",currTypeExpression->range_R1[0],currTypeExpression->range_R1[1]);
-                        rect_array* currRectArr = currTypeExpression->rectArrayRanges->first;
-                        do
-                        {
-                            printf("[ %s .. %s ] ",currRectArr->range[0],currRectArr->range[1]);
-                        } while (currRectArr != currTypeExpression->rectArrayRanges->last);
                         
+                        if(currTypeExpression->dimensions>1) {
+                            rect_array* currRectArr = currTypeExpression->rectArrayRanges->first;
+                            do{
+                                printf("[ %s .. %s ] ",currRectArr->range[0],currRectArr->range[1]);
+                                currRectArr = currRectArr->next;
+                            } while (currRectArr != NULL);
+                        }
+                        
+                    }
+                    if(currTypeExpression->dataType == _jagged) {
+                        if(currTypeExpression->dimensions == 2) {
+                            printf("range_R1= (%s,%s),",currTypeExpression->range_R1[0],currTypeExpression->range_R1[1]);
+                            printf("range_R2=(");
+                            for(int i=0;i<currTypeExpression->high-currTypeExpression->low;i++) {
+                                printf("%s,",currTypeExpression->tdjaggedArrayRange.ranges[i]);
+                            }
+                            printf("%s)",currTypeExpression->tdjaggedArrayRange.ranges[currTypeExpression->high-currTypeExpression->low]);
+                        }
                     }
                     printf("\n");
                     if(T.dataTypes==NULL) {

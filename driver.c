@@ -50,6 +50,11 @@ int main(){
                     traverseParseTree(t,  T);
                     fc[1]=1;
                 }
+                else
+                {
+                    printf("Type Expression Table already created!\n");
+                }
+                
                 
                 break;
             case 3:

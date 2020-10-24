@@ -144,6 +144,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
     char epsString[10] = "&epsilon";
 
     parseTree *traverseNode = t;
+    typeExpression* currTypeExpr;
     int flag = 0;
     while(s!=NULL) {
         rhs_node temp;
@@ -152,10 +153,28 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         int ruleNum =  rules[temp.non_term][s->token_name]; 
         traverseNode->rulenum = ruleNum;
         int currlinenum = 0;
+
+        if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT && traverseNode->type ==NULL) {
+            currTypeExpr = calloc(1,sizeof(typeExpression));
+            traverseNode->type = currTypeExpr;
+        }
+        else if(!traverseNode->is_terminal && (traverseNode->non_term == STATEMENT || traverseNode->non_term == STATEMENTS))
+        {
+            currTypeExpr = NULL;
+        }
+        else
+        {
+            traverseNode->type = currTypeExpr;
+        }
+        
+        
+         
         if(ruleNum == -1)
         {
             currlinenum = s->line_num;
             printf("Type Error Here at Line No. : %d\n",currlinenum);
+            traverseNode->type->dataType = _error;
+
             while(ruleNum == -1)
             {
                 if(s->line_num != currlinenum)
@@ -236,12 +255,21 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             {
                 while(traverseNode->right_sibling == NULL)
                 {
+                    if(traverseNode->type!=NULL && traverseNode->parent->non_term != STATEMENT) {
+                        traverseNode->parent->type = traverseNode->type;
+                    }
                     traverseNode = traverseNode->parent;
+                }
+                if(traverseNode->type!=NULL) {
+                    traverseNode->right_sibling->type = traverseNode->type;
                 }
                 traverseNode = traverseNode->right_sibling;
             }
             else
             {
+                if(traverseNode->type!=NULL) {
+                    traverseNode->right_sibling->type = traverseNode->type;
+                }
                 traverseNode = traverseNode->right_sibling;
             }
             // currNode->rightSibling -> null 

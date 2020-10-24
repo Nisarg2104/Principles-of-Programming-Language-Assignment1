@@ -44,14 +44,8 @@ typedef struct{
     int index;
 } tdJArrRange;
 
-typedef struct thd_sub_range{
-    char*subRange;
-    struct thd_sub_range* next;
-} thd_sub_sub_range;
-
 typedef struct {
-    thd_sub_sub_range** subSubRanges;
-    thd_sub_sub_range** lastSubSubRanges;
+    int* subSubRanges;
     int subRangeCount;
     int index;
 }thd_sub_range;

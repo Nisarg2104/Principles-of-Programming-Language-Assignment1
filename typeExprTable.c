@@ -50,14 +50,15 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
 do
 {
     traverseNode->currNode = traverseNode->left_most_child;
-        if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT) {
-            currTypeExpression = (typeExpression*) calloc(1,sizeof(typeExpression));
-        }
-        if(traverseNode->parent !=NULL) {
-            if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
-            currTypeExpression->dataType = _prim;
-            currTypeExpression->typeName=returnPrimitiveType(traverseNode->term);
-            currTypeExpression->arrayType = NA;
+    
+    if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT) {
+        currTypeExpression = (typeExpression*) calloc(1,sizeof(typeExpression));    //init new type expr
+    }
+    if(traverseNode->parent !=NULL) {
+        if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
+        currTypeExpression->dataType = _prim;
+        currTypeExpression->typeName=returnPrimitiveType(traverseNode->term);
+        currTypeExpression->arrayType = NA;
         }
         if(!traverseNode->is_terminal && traverseNode->parent->non_term == ARRAY) {
             if(traverseNode->non_term == JAGGED) {
@@ -188,17 +189,12 @@ do
 
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == col) {
         currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount = atoi(traverseNode->lexeme);
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges = calloc(atoi(traverseNode->lexeme),sizeof(thd_sub_sub_range*));
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges = currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges;
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges = calloc(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount,sizeof(int));
         currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index = 0;
     }
 
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST) {
-        thd_sub_sub_range* curr = currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index];
-        curr->next = calloc(1,sizeof(thd_sub_sub_range));
-        curr = curr->next;
-        curr->subRange = traverseNode->lexeme;
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].lastSubSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index] = curr;
+        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index]++;
     }
 
     if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == INT_LIST_LIST_DASH) {
@@ -252,6 +248,25 @@ do
                             }
                             printf("%s)",currTypeExpression->tdjaggedArrayRange.ranges[currTypeExpression->high-currTypeExpression->low]);
                         }
+                        if (currTypeExpression->dimensions == 3)
+                        {
+                            printf("range_R1= (%s,%s),",currTypeExpression->range_R1[0],currTypeExpression->range_R1[1]);
+                            printf("range_R2=(");
+                            for(int i=0;i<currTypeExpression->high-currTypeExpression->low;i++) {
+                                printf("%d [ ",currTypeExpression->thdJaggedArrayRange.subRanges[i].subRangeCount);
+                                for(int j=0;j<currTypeExpression->thdJaggedArrayRange.subRanges[i].subRangeCount-1;j++) {
+                                    printf("%d,",currTypeExpression->thdJaggedArrayRange.subRanges[i].subSubRanges[j]);
+                                }
+                                printf("%d ],",currTypeExpression->thdJaggedArrayRange.subRanges[i].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[i].subRangeCount-1]);
+                            }
+                            printf("%d [ ",currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->high-currTypeExpression->low].subRangeCount);
+                            for(int j=0;j<currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->high-currTypeExpression->low].subRangeCount-1;j++) {
+                                printf("%d,",currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->high-currTypeExpression->low].subSubRanges[j]);
+                            }
+                            printf("%d ])",currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->high-currTypeExpression->low].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->high-currTypeExpression->low].subRangeCount-1]);
+
+                        }
+                        
                     }
                     printf("\n");
                     if(T.dataTypes==NULL) {

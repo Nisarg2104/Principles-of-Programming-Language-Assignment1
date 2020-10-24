@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "*.txt": "c",
-        "random": "c"
+        "random": "c",
+        "array": "c"
     }
 }

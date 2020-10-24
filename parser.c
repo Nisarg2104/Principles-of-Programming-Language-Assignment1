@@ -256,8 +256,7 @@ void printParseTree(parseTree *t) {
         traverseNode->is_terminal?runTerm(traverseNode->term):printf("%s ",printNonTerm[traverseNode->non_term]);
         traverseNode->is_terminal?printf("Terminal\n"):printf("Non Terminal\n");
 
-        traverseNode->is_terminal?printf("Lexeme_Name : %s\n",traverseNode->lexeme),printf("Line_No : %d\n",traverseNode->linenum):printf("");
-        traverseNode->is_terminal?printf(""):printf("Rule_No : %d\n",traverseNode->rulenum);
+        traverseNode->is_terminal?printf("Lexeme_Name : %s\n",traverseNode->lexeme),printf("Line_No : %d\n",traverseNode->linenum):printf("Rule_No : %d\n",traverseNode->rulenum);
         printf("Depth : %d\n",traverseNode->depth);
         printf("\n");
         

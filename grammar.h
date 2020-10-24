@@ -97,6 +97,7 @@ typedef struct parseTree{
     typeExpression* type;
     int linenum;
     int rulenum;
+    int depth;
     union 
     {
         terminal term;

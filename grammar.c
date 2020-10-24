@@ -51,21 +51,21 @@ void readGrammar(char* filename,cell_node *grammar) {
         }
         // printf("\n");
 
-        while(curr!=NULL) {
-            printf("%d:",curr->is_terminal);
-            if(curr->is_terminal) {
-                printf("%d\t",curr->term);
-            }
-            else
-            {
-                printf("%d\t",curr->non_term);
-            }
+        // while(curr!=NULL) {
+        //     printf("%d:",curr->is_terminal);
+        //     if(curr->is_terminal) {
+        //         printf("%d\t",curr->term);
+        //     }
+        //     else
+        //     {
+        //         printf("%d\t",curr->non_term);
+        //     }
 
-            curr = curr->prev;
+        //     curr = curr->prev;
             
-        }
+        // }
 
-        printf("\n");
+        // printf("\n");
 
         linenum++;
 

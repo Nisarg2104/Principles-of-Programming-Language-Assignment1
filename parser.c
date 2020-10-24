@@ -138,8 +138,10 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
     t->non_term=PROGRAM;
     t->is_terminal=false;
     t->linenum = 0;
+    t->depth = 0;
     t->currNode = NULL;
     t->parent=NULL;
+    char epsString[10] = "&epsilon";
 
     parseTree *traverseNode = t;
     int flag = 0;
@@ -148,7 +150,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         temp.is_terminal = traverseNode->is_terminal;
         temp.non_term = traverseNode->non_term;
         int ruleNum =  rules[temp.non_term][s->token_name]; 
-        
+        traverseNode->rulenum = ruleNum;
         cell_node curr_grammar = G.grammar_rules[ruleNum];
         assert(curr_grammar.lhs == temp.non_term);
 
@@ -195,8 +197,8 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             {
                 strcpy(traverseNode->lexeme,s->lexeme);
                 traverseNode->linenum = s->line_num;
-                runTerm(traverseNode->term);
-                printf("\n");
+                // runTerm(traverseNode->term);
+                // printf("\n");
                 s = s->nextToken;
                 if(s==NULL) break;
             }
@@ -204,6 +206,10 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             {
                 flag = 1;
                 break;
+            }
+            else
+            {
+                strcpy(traverseNode->lexeme,epsString);
             }
             
             if(traverseNode->right_sibling == NULL)
@@ -229,8 +235,8 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         }     
     }
     assert(s == NULL);
-    printf("YAAYYY !!!\n");
-    printParseTree(t);
+    // printf("YAAYYY !!!\n");
+    // printParseTree(t);
     typeExpressionTable T;
     T.dataTypes = NULL;
     traverseParseTree(t,T);
@@ -239,7 +245,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
 
 void printParseTree(parseTree *t) {
     parseTree* traverseNode = t;
-    printf("%d\n",t->non_term);
+    // printf("%d\n",t->non_term);
     char** printNonTerm = initNonTerms();
     int depth = 0;
     int count = 0;
@@ -248,10 +254,16 @@ void printParseTree(parseTree *t) {
         count++;
         traverseNode->currNode = traverseNode->left_most_child;
         traverseNode->is_terminal?runTerm(traverseNode->term):printf("%s ",printNonTerm[traverseNode->non_term]);
-        traverseNode->is_terminal?printf("terminal\n"):printf("non terminal\n");
+        traverseNode->is_terminal?printf("Terminal\n"):printf("Non Terminal\n");
+
+        traverseNode->is_terminal?printf("Lexeme_Name : %s\n",traverseNode->lexeme),printf("Line_No : %d\n",traverseNode->linenum):printf("");
+        traverseNode->is_terminal?printf(""):printf("Rule_No : %d\n",traverseNode->rulenum);
+        printf("Depth : %d\n",traverseNode->depth);
+        printf("\n");
         
-        if(traverseNode->currNode != NULL)
+        if(traverseNode->currNode != NULL) {
             traverseNode = traverseNode->currNode;
+        }
         else
         {
             while(traverseNode->is_terminal || traverseNode->currNode->right_sibling == NULL)
@@ -271,5 +283,5 @@ void printParseTree(parseTree *t) {
 
     }while(traverseNode->parent != NULL || traverseNode->right_sibling != NULL);
 
-    printf("%d\n",count);
+    // printf("%d\n",count);
 }

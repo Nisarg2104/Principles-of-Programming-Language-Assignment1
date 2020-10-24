@@ -23,7 +23,7 @@ typedef struct{
 } cell_node;
 
 typedef enum {
-    _prim, _array,_jagged
+    _prim, _array,_jagged,_error
 } type;
 
 typedef enum {

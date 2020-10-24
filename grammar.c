@@ -210,21 +210,21 @@ int** initialiseRules(int **rules)
      //}
     return rules;
 }
-int main() {
+// int main() {
 
-        grammar G;
-        G.grammar_rules = (cell_node*)calloc(NO_OF_RULES,sizeof(cell_node));
-        for(int  i = 0;i<NO_OF_RULES;i++)
-        {
-            (G.grammar_rules)[i].first_rhs = NULL;
-            (G.grammar_rules)[i].last_rhs = NULL;
-        }
-        char grammarname[50] = "grammar.txt";
-        readGrammar(grammarname,G.grammar_rules);
-        char programname[50] = "program.txt";
-        tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
-        tokeniseSourcecode(programname,head);
-        parseTree *t = calloc(1,sizeof(parseTree));
-        createParseTree(t,head,G); // segfault in this
-        return 0;
-}
+//         grammar G;
+//         G.grammar_rules = (cell_node*)calloc(NO_OF_RULES,sizeof(cell_node));
+//         for(int  i = 0;i<NO_OF_RULES;i++)
+//         {
+//             (G.grammar_rules)[i].first_rhs = NULL;
+//             (G.grammar_rules)[i].last_rhs = NULL;
+//         }
+//         char grammarname[50] = "grammar.txt";
+//         readGrammar(grammarname,G.grammar_rules);
+//         char programname[50] = "program.txt";
+//         tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
+//         tokeniseSourcecode(programname,head);
+//         parseTree *t = calloc(1,sizeof(parseTree));
+//         createParseTree(t,head,G); // segfault in this
+//         return 0;
+// }

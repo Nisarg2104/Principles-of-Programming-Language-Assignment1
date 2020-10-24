@@ -20,37 +20,64 @@ int main(){
     tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
     tokeniseSourcecode(programname,head);
     int choice;
-    
+    int fc[2];
+    parseTree *t = calloc(1,sizeof(parseTree));
+    typeExpressionTable T=calloc(1,sizeof(type_expression_table));
     do{
         
         printf("Please enter a choice(0-4): \n");
         scanf("%d",&choice);
-        parseTree *t = calloc(1,sizeof(parseTree));
-        typeExpressionTable T;
-        T.dataTypes=NULL;
+       
         switch(choice){
             case 0: break;
             case 1:
-                t = calloc(1,sizeof(parseTree));
-                createParseTree(t,head,G);
+                if(!fc[0]){
+                    t = calloc(1,sizeof(parseTree));
+                    createParseTree(t,head,G);
+                    fc[0]=1;
+                }
+                else{
+                    printf("Parse Tree already created!\n");
+                }
                 break;
             case 2:
-                t = calloc(1,sizeof(parseTree));
-                createParseTree(t,head,G);
-                traverseParseTree(t,  T);
+                if(!fc[0]){
+                    printf("Warning! Parse Tree not created! Creating...\n");
+                    t = calloc(1,sizeof(parseTree));
+                    createParseTree(t,head,G);
+                    fc[0]=1;
+                }
+                if(!fc[1]){
+                    traverseParseTree(t,  T);
+                    fc[1]=1;
+                }
+                
                 break;
             case 3:
-                t = calloc(1,sizeof(parseTree));
-                createParseTree(t,head,G);
-                traverseParseTree(t,  T);
+                if(!fc[0]){
+                    printf("Warning! Parse Tree not created! Creating...\n");
+                    t = calloc(1,sizeof(parseTree));
+                    createParseTree(t,head,G);
+                    fc[0]=1;
+                    
+                }
                 printParseTree(t);
                 break;
-            case 4: 
-                t = calloc(1,sizeof(parseTree));
-                createParseTree(t,head,G);
-                traverseParseTree(t,  T);
-                printParseTree(t);
-                //printTypeExpressionTable(T);
+            case 4:
+                if(!fc[0]){
+                    printf("Warning! Parse Tree not created! Creating...\n");
+                    t = calloc(1,sizeof(parseTree));
+                    createParseTree(t,head,G);
+                    fc[0]=1;
+                    
+                }
+                if(!fc[1]){
+                    printf("Warning! Type Expression Table not created! Creating...\n");
+                    traverseParseTree(t,  T);
+                    fc[1]=1;
+                    
+                }
+                printTypeExpressionTable(T);
                 break;
             default:
                 printf("Invalid choice!\n");

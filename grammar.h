@@ -80,8 +80,9 @@ typedef struct{
 typedef struct{
     dataType* dataTypes;
     int variables;
-}typeExpressionTable;
+}type_expression_table;
 
+typedef type_expression_table* typeExpressionTable;
 
 struct Grammar{
    cell_node* grammar_rules;

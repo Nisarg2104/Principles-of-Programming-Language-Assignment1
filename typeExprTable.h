@@ -14,3 +14,5 @@ stack* create_stack();
 void push(stack* s,parseTree r);
 
 parseTree pop(stack *s);
+
+void printTypeExpressionTable (typeExpressionTable T);

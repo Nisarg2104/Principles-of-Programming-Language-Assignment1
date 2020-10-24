@@ -342,18 +342,20 @@ do
                 
                 while(mainStack->top!=-1) {
                     parseTree currID = pop(mainStack);
-                    printf("%s %s\n", currID.lexeme, currTypeExpression->typeName);
                     currID.type = currTypeExpression;
-                    if(T.dataTypes==NULL) {
-                        T.dataTypes =(dataType*) malloc(sizeof(dataType));
-                        T.variables = 1;
+                    printf("%s %s\n",currID.lexeme,currTypeExpression->typeName);
+
+                    if(T->dataTypes==NULL) {
+                        T->dataTypes =(dataType*) calloc(1,sizeof(dataType));
+                        T->variables = 1;
                     }
                     else {
-                        T.variables++;
-                        T.dataTypes = (dataType*) realloc(T.dataTypes,T.variables*sizeof(dataType));
+                        T->variables++;
+                        T->dataTypes = (dataType*) realloc(T->dataTypes,T->variables*sizeof(dataType));
                     }
-                    T.dataTypes[variables-1].type = currTypeExpression;
-                    strcpy(T.dataTypes[variables-1].varName,currID.lexeme);
+                    T->dataTypes[variables-1].type = currTypeExpression;
+                    strcpy(T->dataTypes[variables-1].varName,currID.lexeme);
+                    printf("%d\n",T->dataTypes[variables-1].type!=NULL);
                     // currID.parent->type = currTypeExpression;
                 }
             }
@@ -368,4 +370,12 @@ do
 while (traverseNode->parent != NULL || traverseNode->right_sibling != NULL);
     
     
+}
+
+void printTypeExpressionTable (typeExpressionTable T){
+    for(int i=0;i<T->variables;i++){
+        if(T->dataTypes[i].type==NULL)
+            printf("%d\n",i);
+        // printf("%s %s\n",T->dataTypes[i].varName,T->dataTypes[i].type->typeName);
+    }
 }

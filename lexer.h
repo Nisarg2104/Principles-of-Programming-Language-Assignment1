@@ -4,7 +4,7 @@
 #include <ctype.h>
 
 #include<stdio.h>
-#define MAX_VAR_NAME_LEN 50
+#define MAX_VAR_NAME_LEN 21
 
 typedef enum {
     #include "terminals.txt"

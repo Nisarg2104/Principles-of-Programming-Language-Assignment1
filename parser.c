@@ -231,6 +231,9 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
     assert(s == NULL);
     printf("YAAYYY !!!\n");
     printParseTree(t);
+    typeExpressionTable T;
+    T.dataTypes = NULL;
+    traverseParseTree(t,T);
 
 }
 

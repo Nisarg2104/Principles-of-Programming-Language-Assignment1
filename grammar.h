@@ -22,6 +22,70 @@ typedef struct{
     rhs_node* last_rhs;
 } cell_node;
 
+typedef enum {
+    _prim, _array,_jagged
+} type;
+
+typedef enum {
+    STATIC, DYNAMIC, NA
+} array_type;
+
+typedef struct rect_array{
+    char* range [2];
+    struct rect_array* next;
+} rect_array;
+typedef struct{
+   rect_array* first;
+   rect_array* last;
+} rect_array_ranges;
+typedef struct{
+    char** ranges;
+    int index;
+    int high;
+    int low;
+} tdJArrRange;
+typedef struct thd_sub_range{
+    char*subRange;
+    struct thd_sub_range* next;
+} thd_sub_sub_range;
+typedef struct {
+    thd_sub_sub_range* subSubRanges;
+    int subRangeCount;
+}thd_sub_range;
+
+typedef struct {
+    thd_sub_range subRanges;
+    int index;
+    int high;
+    int low;
+} thdJArrRange;
+
+
+typedef struct{
+    type dataType;
+    array_type arrayType;
+    char* typeName;
+    int dimensions;
+    char* range_R1 [2];
+
+    union {        
+        rect_array_ranges* rectArrayRanges;
+        tdJArrRange tdjaggedArrayRange;
+        int** thdJaggedArrayRange;
+    };    
+
+} typeExpression;
+
+typedef struct{
+    typeExpression* type;
+    char varName [MAX_VAR_NAME_LEN];
+} dataType;
+
+typedef struct{
+    dataType* dataTypes;
+    int variables;
+}typeExpressionTable;
+
 
 struct Grammar{
    cell_node* grammar_rules;
@@ -34,6 +98,7 @@ typedef struct parseTree{
     struct parseTree * left_most_child;
     struct parseTree* right_sibling;
     struct parseTree* currNode;
+    typeExpression* type;
     int linenum;
     int rulenum;
     union 
@@ -48,3 +113,4 @@ typedef struct parseTree{
 void readGrammar(char* filename,cell_node *grammar);
 int** hardCodedRules();
 int** initialiseRules(int **rules);
+void traverseParseTree(parseTree *t, typeExpressionTable T);

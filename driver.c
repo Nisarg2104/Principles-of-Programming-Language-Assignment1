@@ -20,7 +20,7 @@ int main(){
     tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
     tokeniseSourcecode(programname,head);
     int choice;
-    int fc[2];
+    int fc[2] = {0,0};
     parseTree *t = calloc(1,sizeof(parseTree));
     typeExpressionTable T=calloc(1,sizeof(type_expression_table));
     do{
@@ -43,7 +43,6 @@ int main(){
             case 2:
                 if(!fc[0]){
                     printf("Warning! Parse Tree not created! Creating...\n");
-                    t = calloc(1,sizeof(parseTree));
                     createParseTree(t,head,G);
                     fc[0]=1;
                 }
@@ -56,7 +55,6 @@ int main(){
             case 3:
                 if(!fc[0]){
                     printf("Warning! Parse Tree not created! Creating...\n");
-                    t = calloc(1,sizeof(parseTree));
                     createParseTree(t,head,G);
                     fc[0]=1;
                     
@@ -66,7 +64,6 @@ int main(){
             case 4:
                 if(!fc[0]){
                     printf("Warning! Parse Tree not created! Creating...\n");
-                    t = calloc(1,sizeof(parseTree));
                     createParseTree(t,head,G);
                     fc[0]=1;
                     

@@ -72,13 +72,14 @@ typedef struct{
 
 } typeExpression;
 
-typedef struct{
+typedef struct data_type{
     typeExpression* type;
-    char varName [MAX_VAR_NAME_LEN];
+    char* varName;
+    struct data_type* next;
 } dataType;
 
 typedef struct{
-    dataType* dataTypes;
+    dataType* firstVariable;
     int variables;
 }type_expression_table;
 

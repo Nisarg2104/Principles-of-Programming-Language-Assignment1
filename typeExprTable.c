@@ -135,6 +135,7 @@ void computeRegularArraytypeExpr(typeExpression* t) {
 
 void traverseParseTree(parseTree *t, typeExpressionTable T) {
     parseTree* traverseNode = t;
+    dataType* currentVariable = T->firstVariable;
     int flag = 0;
     stack * mainStack = create_stack();
     typeExpression* currTypeExpression;
@@ -343,20 +344,21 @@ do
                 while(mainStack->top!=-1) {
                     parseTree currID = pop(mainStack);
                     currID.type = currTypeExpression;
-                    printf("%s %s\n",currID.lexeme,currTypeExpression->typeName);
+                    // printf("%s %s\n",currID.lexeme,currTypeExpression->typeName);
 
-                    if(T->dataTypes==NULL) {
-                        T->dataTypes =(dataType*) calloc(1,sizeof(dataType));
+                    if(T->firstVariable==NULL) {
+                        T->firstVariable =(dataType*) calloc(1,sizeof(dataType));
+                        currentVariable = T->firstVariable;
                         T->variables = 1;
                     }
                     else {
                         T->variables++;
-                        T->dataTypes = (dataType*) realloc(T->dataTypes,T->variables*sizeof(dataType));
+                        currentVariable->next = (dataType*)calloc(1,sizeof(dataType));
+                        currentVariable = currentVariable->next;
                     }
-                    T->dataTypes[variables-1].type = currTypeExpression;
-                    strcpy(T->dataTypes[variables-1].varName,currID.lexeme);
-                    printf("%d\n",T->dataTypes[variables-1].type!=NULL);
-                    // currID.parent->type = currTypeExpression;
+                    currentVariable->type = currTypeExpression;
+                    currentVariable->varName = (char*)calloc(1,MAX_VAR_NAME_LEN);
+                    strcpy(currentVariable->varName,currID.lexeme);
                 }
             }
 
@@ -368,14 +370,18 @@ do
     }
 }
 while (traverseNode->parent != NULL || traverseNode->right_sibling != NULL);
-    
-    
+    printTypeExpressionTable(T);
 }
 
 void printTypeExpressionTable (typeExpressionTable T){
-    for(int i=0;i<T->variables;i++){
-        if(T->dataTypes[i].type==NULL)
-            printf("%d\n",i);
-        // printf("%s %s\n",T->dataTypes[i].varName,T->dataTypes[i].type->typeName);
+    printf("%d\n",T->variables);
+    dataType* currVariable = T->firstVariable;
+    int i=0;
+    while (currVariable!=NULL)
+    {
+        if(currVariable->type!=NULL)
+            printf("%s %s\n",currVariable->varName, currVariable->type->typeName);
+        currVariable = currVariable->next;
     }
+    
 }

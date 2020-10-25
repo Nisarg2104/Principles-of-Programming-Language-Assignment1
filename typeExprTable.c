@@ -143,6 +143,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
     stack * mainStack = create_stack();
     typeExpression* currTypeExpression;
     int* arrayCheck = NULL;
+    bool isMultID = false;
 do
 {
     traverseNode->currNode = traverseNode->left_most_child;
@@ -151,6 +152,7 @@ do
         currTypeExpression = traverseNode->type;    //init new type expr
         free(arrayCheck);
         arrayCheck = NULL;
+        isMultID = false;
     }
     if(traverseNode->parent !=NULL) {
         if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
@@ -179,7 +181,9 @@ do
             
         }
     }
-    
+    if(!traverseNode->is_terminal && traverseNode->non_term == VAR_LIST) {
+        isMultID = true;
+    }    
 
     if(traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == MULT_ID || traverseNode->parent->non_term == VAR_LIST || traverseNode->parent->non_term == SINGLE_DECLARE)) {
         push(mainStack,*traverseNode);
@@ -298,12 +302,12 @@ do
         int number = atoi(traverseNode->lexeme);
         if(number<currTypeExpression->low || number>currTypeExpression->high) {
             currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d\n", traverseNode->linenum);
+            printf("Type definition error at line %d, index out of bounds in 2D jagged array\n", traverseNode->linenum);
             currTypeExpression->linenum = traverseNode->linenum;
         }
-        else if(arrayCheck[number-currTypeExpression->low] == true){
+        else if(arrayCheck[number-currTypeExpression->low]){
             currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d\n", traverseNode->linenum);     
+            printf("Type definition error at line %d, multiple declarations of same index in 3D jagged array\n", traverseNode->linenum);     
             currTypeExpression->linenum = traverseNode->linenum;
         }
         else
@@ -317,12 +321,12 @@ do
         int number = atoi(traverseNode->lexeme);
         if(number<currTypeExpression->low || number>currTypeExpression->high) {
             currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d\n", traverseNode->linenum);
+            printf("Type definition error at line %d, index out of bounds in 3D jagged array\n", traverseNode->linenum);
             currTypeExpression->linenum = traverseNode->linenum;
         }
-        else if(arrayCheck[number-currTypeExpression->low] == true){
+        else if(arrayCheck[number-currTypeExpression->low]){
             currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d\n", traverseNode->linenum);     
+            printf("Type definition error at line %d, multiple declarations of same index in 3D jagged array\n", traverseNode->linenum);     
             currTypeExpression->linenum = traverseNode->linenum;
         }
         else
@@ -337,19 +341,29 @@ do
         currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index = 0;
     }
 
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST && currTypeExpression->dataType != _error) {
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST_DASH && currTypeExpression->dataType != _error) {
         currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index]++;
     }
 
     if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == INT_LIST_LIST_DASH && currTypeExpression->dataType != _error) {
         currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index++;
+        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index-1] == 0) {
+            currTypeExpression->dataType = _error;
+            printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
     }
 
     if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS && currTypeExpression->dataType != _error) {
         currTypeExpression->thdJaggedArrayRange.index++;
         if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
             currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d\n", traverseNode->linenum);
+            printf("Type definition error at line %d, sub-sub-range size does not match in 3D jagged array\n ", traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index] == 0) {
+            currTypeExpression->dataType = _error;
+            printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
             currTypeExpression->linenum = traverseNode->linenum;
         }
     }
@@ -357,12 +371,12 @@ do
         if(traverseNode->right_sibling->left_most_child->non_term == EPS) {
             if(traverseNode->right_sibling->non_term == TD_VALS_DASH) {
                 if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->tdJaggedArrayRange.index) {
-                    printf("Type definition error at line %d\n", traverseNode->linenum);
+                    printf("Type definition error at line %d, sub-range size does not match in 2D jagged array\n", traverseNode->linenum);
                 } 
             }
             if(traverseNode->right_sibling->non_term == THD_VALS_DASH) {
                 if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->thdJaggedArrayRange.index) {
-                    printf("Type definition error at line %d\n", traverseNode->linenum);
+                    printf("Type definition error at line %d, sub-range size does not match in 3D jagged array\n", traverseNode->linenum);
                 } 
             }
         }
@@ -404,6 +418,9 @@ do
                         compute3DJaggedArraytypeExpr(currTypeExpression);
                     }
                     
+                }
+                if(isMultID && mainStack->top == 0){
+                   printf("Warning at line %d, too few variables in multi declare statement\n", mainStack->arr[mainStack->top].linenum); 
                 }
                 
                 while(mainStack->top!=-1) {

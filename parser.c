@@ -150,7 +150,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         rhs_node temp;
         temp.is_terminal = traverseNode->is_terminal;
         temp.non_term = traverseNode->non_term;
-        int ruleNum =  rules[temp.non_term][s->token_name]; 
+        int ruleNum =  rules[temp.non_term][s->token_name];  
         traverseNode->rulenum = ruleNum;
         int currlinenum = 0;
 
@@ -172,6 +172,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
          
         if(ruleNum == -1)
         {
+            printf("%s %d \n",s->lexeme,temp.non_term);
             currlinenum = s->line_num;
             printf("Type definition error at Line No. : %d\n",currlinenum);
             traverseNode->type->dataType = _error;
@@ -244,6 +245,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             }
             else if(traverseNode->term != eps)
             {
+                printf("%s %d\n",s->lexeme,traverseNode->term);
                 flag = 1;
                 break;
             }

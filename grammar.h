@@ -44,7 +44,7 @@ typedef struct{
 } rect_array_ranges;
 
 typedef struct{
-    char** ranges;
+    int** ranges;
     int index;
 } tdJArrRange;
 

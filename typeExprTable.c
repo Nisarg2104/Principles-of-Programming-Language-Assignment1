@@ -39,13 +39,13 @@ void compute2DJaggedArraytypeExpr(typeExpression* t)
     strcat(expr,"),range_R2=(");
     char* BUF;
     for(int i = 0;i<t->high-t->low;i++) {
-        BUF = calloc(1,30);
-        sprintf(BUF,"%s,",t->tdJaggedArrayRange.ranges[i]);
+        BUF = calloc(1,5);
+        sprintf(BUF,"%d,",t->tdJaggedArrayRange.ranges[i][0]);
         strcat(expr,BUF);
         free(BUF);
     }
     BUF = calloc(1,5);
-    sprintf(BUF,"%s",t->tdJaggedArrayRange.ranges[t->high-t->low]);
+    sprintf(BUF,"%d",t->tdJaggedArrayRange.ranges[t->high-t->low][0]);
     strcat(expr,BUF);
     free(BUF);
     strcat(expr,"),basicElementType = integer>");
@@ -283,7 +283,10 @@ do
     }
 
     if(traverseNode->is_terminal && traverseNode->term == of && traverseNode->parent->non_term == TD_INIT && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdJaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(char*));
+        currTypeExpression->tdJaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(int*));
+        for(int i=0;i<currTypeExpression->high-currTypeExpression->low+1;i++) {
+            currTypeExpression->tdJaggedArrayRange.ranges[i] = calloc(2,sizeof(int));
+        }
         currTypeExpression->tdJaggedArrayRange.index = 0;
     }
 
@@ -294,7 +297,21 @@ do
     }
 
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index] = traverseNode->lexeme;
+        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] = atoi(traverseNode->lexeme);
+        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1] = 0;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_LIST && currTypeExpression->dataType!=_error) {
+        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]++;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS && currTypeExpression->dataType!=_error) {
+        if(currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]){
+            printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d, sub-range does not match in 2D jagged array\n", traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
         currTypeExpression->tdJaggedArrayRange.index++;
     }
 

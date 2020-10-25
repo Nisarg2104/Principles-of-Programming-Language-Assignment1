@@ -206,6 +206,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             nodeToAdd->right_sibling = NULL;
             nodeToAdd->currNode = NULL;
             nodeToAdd->linenum = -1;
+            nodeToAdd->depth = traverseNode->depth+1;
             nodeToAdd->is_terminal = currRule->is_terminal;
             if(currRule->is_terminal)
             {

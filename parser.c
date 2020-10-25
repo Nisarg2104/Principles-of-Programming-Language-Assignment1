@@ -89,12 +89,15 @@ void runTerm(int x)
             printf("declare ");
             break;
         case 28:
-            printf("rbs ");
+            printf("rb_op ");
             break;
         case 29:
-            printf("program ");
+            printf("rb_cl ");
             break;
         case 30:
+            printf("program ");
+            break;
+        case 31:
             printf("eps ");
             break;
         default:
@@ -174,15 +177,17 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         {
             printf("%s %d \n",s->lexeme,temp.non_term);
             currlinenum = s->line_num;
-            printf("Type definition error at Line No. : %d\n",currlinenum);
+            printf("Type definition error at line %d\n",currlinenum);
             traverseNode->type->dataType = _error;
+            traverseNode->type->linenum = currlinenum;
 
             while(ruleNum == -1)
             {
                 if(s->line_num != currlinenum)
                 {
-                    printf("Type definition error at Line No. : %d\n",currlinenum);
+                    printf("Type definition error at line %d\n",currlinenum);
                     currlinenum = s->line_num;
+                    traverseNode->type->linenum = currlinenum;
                 }
                 s=s->nextToken; 
                 if(s==NULL) break;
@@ -238,11 +243,18 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             if(traverseNode->term == s->token_name)
             {
                 strcpy(traverseNode->lexeme,s->lexeme);
-                traverseNode->linenum = s->line_num;
+                traverseNode->linenum = s->line_num; 
                 // runTerm(traverseNode->term);
                 // printf("\n");
                 s = s->nextToken;
-                if(s==NULL) break;
+                
+                if(s==NULL) 
+                    break;
+                // else
+                // {
+                //     printf("%s\n",s->lexeme);
+                // }
+                
             }
             else if(traverseNode->term != eps)
             {
@@ -257,17 +269,23 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             
             if(traverseNode->right_sibling == NULL)
             {
-                while(traverseNode->right_sibling == NULL)
+                while(traverseNode->right_sibling == NULL && traverseNode->parent != NULL)
                 {
                     if(traverseNode->type!=NULL && traverseNode->parent->non_term != STATEMENT) {
                         traverseNode->parent->type = traverseNode->type;
                     }
                     traverseNode = traverseNode->parent;
                 }
-                if(traverseNode->type!=NULL) {
-                    traverseNode->right_sibling->type = traverseNode->type;
+                if(traverseNode->parent == NULL)
+                {
+                    // printf("Program Parsed/xecuted Successfully\n");
                 }
-                traverseNode = traverseNode->right_sibling;
+                else{
+                    if(traverseNode->type!=NULL) {
+                        traverseNode->right_sibling->type = traverseNode->type;
+                    }
+                    traverseNode = traverseNode->right_sibling;
+                }
             }
             else
             {
@@ -282,7 +300,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
 
         if(flag)
         {
-            printf("Fuckin Error\n");
+            // printf("Fuckin Error\n");
             break;
         }     
     }

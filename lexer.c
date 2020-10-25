@@ -42,8 +42,10 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
 terminal returnTokenstreamTerminalVal(char* lex) {
     if(!strcmp(lex,"program"))
         return program;
-    else if(!strcmp(lex,"()"))
-        return rbs;
+    else if(!strcmp(lex,"("))
+        return rb_op;
+    else if(!strcmp(lex,")"))
+        return rb_cl;
     else if(!strcmp(lex,"{"))
         return cb_op;
     else if(!strcmp(lex,"}"))
@@ -204,8 +206,10 @@ non_terminal returnNonTerminalVal(char* lex) {
 terminal returnTerminalVal(char* lex) {
     if(!strcmp(lex,"program"))
         return program;
-    else if(!strcmp(lex,"rbs"))
-        return rbs;
+    else if(!strcmp(lex,"rb_op"))
+        return rb_op;
+    else if(!strcmp(lex,"rb_cl"))
+        return rb_cl;
     else if(!strcmp(lex,"cb_op"))
         return cb_op;
     else if(!strcmp(lex,"cb_cl"))

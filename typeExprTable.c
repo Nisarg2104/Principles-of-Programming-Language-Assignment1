@@ -25,6 +25,52 @@ parseTree pop(stack *s){
     return s->arr[s->top+1];
 }
 
+bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* checker) {
+    checker->lhs = calloc(1,sizeof(typeExpression));
+    dataType* currVar = T->firstVariable;
+    while (currVar!=NULL)
+    {
+        if(!strcmp(id,currVar->varName)) {            
+            checker->lhs->typeName = calloc(1,strlen(currVar->type->typeName)+1);
+            strcpy(checker->lhs->typeName,currVar->type->typeName);
+            checker->lhs->dataType = currVar->type->dataType;
+            checker->lhs->arrayType = currVar->type->arrayType;
+            return true;
+        }
+        currVar = currVar->next;
+    }
+    checker->lhs->dataType = _error;
+    checker->lhs->typeName = calloc(1,13);
+    strcpy(checker->lhs->typeName,"<type=ERROR>");
+    return false;
+}
+
+void findIdIntypeExprTable(char* id , typeExpression* type, typeExpressionTable T) {
+    dataType* currVar = T->firstVariable;
+    while(currVar->next!=NULL) {
+        if(!strcmp(id,currVar->varName)) {
+            // type->dataType = currVar->type->dataType;
+            // type->arrayType = currVar->type->arrayType;
+            // type->dimensions = currVar->type->dimensions;
+            // type->high = currVar->type->high;
+            // type->low = currVar->type->low;
+            // type->linenum = currVar->type->linenum;
+            // type->typeName = calloc(1,strlen(currVar->type)+1);
+            // strcpy(type->typeName,currVar->type->typeName);
+            // switch (currVar->type->dataType)
+            // {
+            // case _prim:
+            //     type->primType = currVar->type->primType;
+            //     break;
+
+            
+            // default:
+            //     break;
+            // }
+        }
+    }
+}
+
 void compute2DJaggedArraytypeExpr(typeExpression* t)
 {
     char* expr = malloc(256);
@@ -142,18 +188,47 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
     int flag = 0;
     stack * mainStack = create_stack();
     typeExpression* currTypeExpression;
+    assignment_type_checker* assignmentTypeChecker = NULL;
     int* arrayCheck = NULL;
     bool isMultID = false;
+    bool isAssignStatement = false;
+
 do
 {
     traverseNode->currNode = traverseNode->left_most_child;
     
     if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT) {
         currTypeExpression = traverseNode->type;    //init new type expr
-        free(arrayCheck);
+        if(arrayCheck!=NULL)
+            free(arrayCheck);
         arrayCheck = NULL;
         isMultID = false;
     }
+    
+    if(!traverseNode->is_terminal && traverseNode->non_term == ASSIGN_STATEMENT) {
+        if(assignmentTypeChecker!= NULL)
+            free(assignmentTypeChecker);
+        assignmentTypeChecker = NULL;
+        assignmentTypeChecker = calloc(1,sizeof(assignment_type_checker));
+        assignmentTypeChecker->assignmentFlags = calloc(4,sizeof(bool));
+        currTypeExpression = calloc(1,sizeof(dataType));    //init new type expr
+        if(arrayCheck!=NULL)
+            free(arrayCheck);
+        arrayCheck = NULL;
+        isMultID = false;
+        isAssignStatement = true;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == ASSIGN_STATEMENT) {
+        bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
+        if(assignmentTypeChecker->lhs->dataType == _error) {
+            printf("Type error at line %d, ", traverseNode->linenum);
+            added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
+            currTypeExpression = assignmentTypeChecker->lhs;
+        }
+    }
+
+    
     if(traverseNode->parent !=NULL) {
         if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
             if(currTypeExpression->dataType != _error)

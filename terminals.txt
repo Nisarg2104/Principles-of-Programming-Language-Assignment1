@@ -26,6 +26,7 @@ boolean,
 variables,
 list,
 declare,
-rbs,
+rb_op,
+rb_cl,
 program,
 eps

@@ -8,6 +8,16 @@ typedef struct{
     parseTree* arr;
 } stack;
 
+typedef enum {
+    hasDivOp, isLHSReal, isBoolVar, hasBoolOp
+} assignment_flags;
+
+typedef struct {
+    bool* assignmentFlags;
+    typeExpression* lhs;
+    typeExpression** rhs;
+    int rhsTerms;
+} assignment_type_checker;
 
 stack* create_stack();
 

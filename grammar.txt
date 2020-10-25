@@ -1,4 +1,4 @@
-PROGRAM -> program rbs cb_op STATEMENTS cb_cl
+PROGRAM -> program rb_op rb_cl cb_op STATEMENTS cb_cl
 STATEMENTS -> STATEMENT STATEMENTS
 STATEMENTS -> EPS
 STATEMENT -> declare DECLARE_STATEMENT

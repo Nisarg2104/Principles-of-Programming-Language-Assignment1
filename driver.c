@@ -32,7 +32,6 @@ int main(){
             case 0: break;
             case 1:
                 if(!fc[0]){
-                    t = calloc(1,sizeof(parseTree));
                     createParseTree(t,head,G);
                     fc[0]=1;
                 }
@@ -47,7 +46,7 @@ int main(){
                     fc[0]=1;
                 }
                 if(!fc[1]){
-                    traverseParseTree(t,  T);
+                    traverseParseTree(t,T);
                     fc[1]=1;
                 }
                 else
@@ -75,7 +74,7 @@ int main(){
                 }
                 if(!fc[1]){
                     printf("Warning! Type Expression Table not created! Creating...\n");
-                    traverseParseTree(t,  T);
+                    traverseParseTree(t,T);
                     fc[1]=1;
                     
                 }

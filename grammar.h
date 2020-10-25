@@ -27,6 +27,10 @@ typedef enum {
 } type;
 
 typedef enum {
+    _integer, _real, _boolean
+} prim_type;
+
+typedef enum {
     STATIC, DYNAMIC, NA
 } array_type;
 
@@ -64,10 +68,12 @@ typedef struct{
     char* range_R1 [2];
     int high;
     int low;
+    int linenum;
     union {        
         rect_array_ranges* rectArrayRanges;
-        tdJArrRange tdjaggedArrayRange;
+        tdJArrRange tdJaggedArrayRange;
         thdJArrRange thdJaggedArrayRange;
+        prim_type primType;
     };    
 
 } typeExpression;
@@ -82,7 +88,6 @@ typedef struct{
     dataType* firstVariable;
     int variables;
 }type_expression_table;
-
 typedef type_expression_table* typeExpressionTable;
 
 struct Grammar{

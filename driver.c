@@ -86,3 +86,9 @@ int main(){
         }
     }while(choice!=0);
 }
+
+// boolean = saare boolean operators saare goodvariable saare boolean variables
+// integer/real = saare not a boolean a operator saare goodvariable(can be integer can be real)
+// integer -> a [ x y ]
+// ri.range[0] < num[i] < r1.range[1]
+// count == range size

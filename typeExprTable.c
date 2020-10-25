@@ -25,22 +25,6 @@ parseTree pop(stack *s){
     return s->arr[s->top+1];
 }
 
-char* returnPrimitiveType(int x) {
-    char *type  = malloc(15);
-    switch (x)
-    {
-    case integer:
-        strcpy(type,"<type=integer>");
-        break;
-    case boolean:
-        strcpy(type,"<type=boolean>");
-        break;
-    case real:
-        strcpy(type,"<type=real>");
-        break;
-    }
-    return type;
-}
 void compute2DJaggedArraytypeExpr(typeExpression* t)
 {
     char* expr = malloc(256);
@@ -56,12 +40,12 @@ void compute2DJaggedArraytypeExpr(typeExpression* t)
     char* BUF;
     for(int i = 0;i<t->high-t->low;i++) {
         BUF = calloc(1,30);
-        sprintf(BUF,"%s,",t->tdjaggedArrayRange.ranges[i]);
+        sprintf(BUF,"%s,",t->tdJaggedArrayRange.ranges[i]);
         strcat(expr,BUF);
         free(BUF);
     }
     BUF = calloc(1,5);
-    sprintf(BUF,"%s",t->tdjaggedArrayRange.ranges[t->high-t->low]);
+    sprintf(BUF,"%s",t->tdJaggedArrayRange.ranges[t->high-t->low]);
     strcat(expr,BUF);
     free(BUF);
     strcat(expr,"),basicElementType = integer>");
@@ -132,6 +116,25 @@ void computeRegularArraytypeExpr(typeExpression* t) {
     strcat(expr,",basicElementType = integer>");
     t->typeName = expr;
 }
+void computePrimtypeExpr(typeExpression* typeExpr,terminal term) {
+    char *type  = calloc(1,15);
+    switch (term)
+    {
+    case integer:
+        typeExpr->primType = _integer;
+        strcpy(type,"<type=integer>");
+        break;
+    case real:
+        typeExpr->primType = _real;
+        strcpy(type,"<type=real>");
+        break;
+    case boolean:
+        typeExpr->primType = _boolean;
+        strcpy(type,"<type=boolean>");
+        break;
+    }
+    typeExpr->typeName = type;
+}
 
 void traverseParseTree(parseTree *t, typeExpressionTable T) {
     parseTree* traverseNode = t;
@@ -139,19 +142,22 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
     int flag = 0;
     stack * mainStack = create_stack();
     typeExpression* currTypeExpression;
+    int* arrayCheck = NULL;
 do
 {
     traverseNode->currNode = traverseNode->left_most_child;
     
     if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT) {
         currTypeExpression = traverseNode->type;    //init new type expr
+        free(arrayCheck);
+        arrayCheck = NULL;
     }
     if(traverseNode->parent !=NULL) {
         if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
             if(currTypeExpression->dataType != _error)
             { 
                 currTypeExpression->dataType = _prim;
-                currTypeExpression->typeName=returnPrimitiveType(traverseNode->term);
+                computePrimtypeExpr(currTypeExpression,traverseNode->term);
                 currTypeExpression->arrayType = NA;}
             }
         if(!traverseNode->is_terminal && traverseNode->parent->non_term == ARRAY) {
@@ -267,12 +273,14 @@ do
         else if(currTypeExpression->dataType != _error){
             currTypeExpression->range_R1[1] = traverseNode->lexeme;
             currTypeExpression->high = atoi(traverseNode->lexeme);
+            arrayCheck = calloc(currTypeExpression->high - currTypeExpression->low + 1,sizeof(bool));
         }
+
     }
 
     if(traverseNode->is_terminal && traverseNode->term == of && traverseNode->parent->non_term == TD_INIT && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdjaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(char*));
-        currTypeExpression->tdjaggedArrayRange.index = 0;
+        currTypeExpression->tdJaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(char*));
+        currTypeExpression->tdJaggedArrayRange.index = 0;
     }
 
     if(traverseNode->is_terminal && traverseNode->term == sq_op && traverseNode->parent->non_term == THD_INIT && currTypeExpression->dataType != _error) {
@@ -282,8 +290,45 @@ do
     }
 
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdjaggedArrayRange.ranges[currTypeExpression->tdjaggedArrayRange.index] = traverseNode->lexeme;
-        currTypeExpression->tdjaggedArrayRange.index++;
+        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index] = traverseNode->lexeme;
+        currTypeExpression->tdJaggedArrayRange.index++;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
+        int number = atoi(traverseNode->lexeme);
+        if(number<currTypeExpression->low || number>currTypeExpression->high) {
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d\n", traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+        else if(arrayCheck[number-currTypeExpression->low] == true){
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d\n", traverseNode->linenum);     
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+        else
+        {
+            arrayCheck[number-currTypeExpression->low] = true;
+        }
+        
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
+        int number = atoi(traverseNode->lexeme);
+        if(number<currTypeExpression->low || number>currTypeExpression->high) {
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d\n", traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+        else if(arrayCheck[number-currTypeExpression->low] == true){
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d\n", traverseNode->linenum);     
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+        else
+        {
+            arrayCheck[number-currTypeExpression->low] = true;
+        }
     }
 
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
@@ -302,10 +347,29 @@ do
 
     if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS && currTypeExpression->dataType != _error) {
         currTypeExpression->thdJaggedArrayRange.index++;
+        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
+            currTypeExpression->dataType = _error;
+            printf("Type definition error at line %d\n", traverseNode->linenum);
+            currTypeExpression->linenum = traverseNode->linenum;
+        }
+    }
+    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->right_sibling!=NULL && !traverseNode->right_sibling->is_terminal) {
+        if(traverseNode->right_sibling->left_most_child->non_term == EPS) {
+            if(traverseNode->right_sibling->non_term == TD_VALS_DASH) {
+                if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->tdJaggedArrayRange.index) {
+                    printf("Type definition error at line %d\n", traverseNode->linenum);
+                } 
+            }
+            if(traverseNode->right_sibling->non_term == THD_VALS_DASH) {
+                if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->thdJaggedArrayRange.index) {
+                    printf("Type definition error at line %d\n", traverseNode->linenum);
+                } 
+            }
+        }
     }
 
     //propogation code starts here
-
+    
     if(traverseNode->currNode != NULL)
             traverseNode = traverseNode->currNode;
     else
@@ -322,6 +386,7 @@ do
                 if(mainStack->top == -1) {
                     continue;
                 }
+                
                 if(currTypeExpression->dataType == _error) {
                     currTypeExpression->typeName = calloc(1,13);
                     strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -370,17 +435,19 @@ do
     }
 }
 while (traverseNode->parent != NULL || traverseNode->right_sibling != NULL);
-    printTypeExpressionTable(T);
 }
 
 void printTypeExpressionTable (typeExpressionTable T){
-    printf("%d\n",T->variables);
     dataType* currVariable = T->firstVariable;
     int i=0;
     while (currVariable!=NULL)
     {
         if(currVariable->type!=NULL)
-            printf("%s %s\n",currVariable->varName, currVariable->type->typeName);
+            printf("%s %s ",currVariable->varName, currVariable->type->typeName);
+            if(currVariable->type->dataType == _error) {
+                printf("Type definition error at Line No. : %d",currVariable->type->linenum);
+            }
+            printf("\n");
         currVariable = currVariable->next;
     }
     

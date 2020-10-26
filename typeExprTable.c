@@ -26,53 +26,82 @@ parseTree pop(stack *s){
 }
 
 bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* checker) {
-    checker->lhs = calloc(1,sizeof(typeExpression));
+    checker->lhs = calloc(1,sizeof(assignExpression));
+    checker->lhs->varType = calloc(1,sizeof(typeExpression));
     dataType* currVar = T->firstVariable;
     while (currVar!=NULL)
     {
         if(!strcmp(id,currVar->varName)) {            
-            checker->lhs->typeName = calloc(1,strlen(currVar->type->typeName)+1);
-            strcpy(checker->lhs->typeName,currVar->type->typeName);
-            checker->lhs->dataType = currVar->type->dataType;
-            checker->lhs->arrayType = currVar->type->arrayType;
+            checker->lhs->varType->typeName = calloc(1,strlen(currVar->type->typeName)+1);
+            strcpy(checker->lhs->varType->typeName,currVar->type->typeName);
+            checker->lhs->varType->dataType = currVar->type->dataType;
+            checker->lhs->varType->arrayType = currVar->type->arrayType;
             return true;
         }
         currVar = currVar->next;
     }
-    checker->lhs->dataType = _error;
-    checker->lhs->typeName = calloc(1,13);
-    strcpy(checker->lhs->typeName,"<type=ERROR>");
+    checker->lhs->varType->dataType = _error;
+    checker->lhs->varType->typeName = calloc(1,13);
+    strcpy(checker->lhs->varType->typeName,"<type=ERROR>");
     return false;
 }
-bool initRHSAssign(char* id, typeExpressionTable T, assignment_type_checker* checker) {
+
+bool initRHSAssign(bool numid,char* varName, typeExpressionTable T, assignment_type_checker* checker) {
+    
     if(checker->rhsTerms == 0)
     {
-        checker->rhs = calloc(20,sizeof(typeExpression*)); // Change the Number of RHS variables to Dynamic Array
+        checker->rhs = calloc(20,sizeof(assignExpression*)); // Change the Number of RHS variables to Dynamic Array
         checker->rhsTerms++;
-        checker->rhs[checker->rhsTerms-1] = calloc(20,sizeof(typeExpression));
+        checker->rhs[checker->rhsTerms-1] = calloc(1,sizeof(assignExpression));
+        checker->rhs[checker->rhsTerms-1]->varType = calloc(1,sizeof(typeExpression));
     }
     else
     {
         checker->rhsTerms++;
-        checker->rhs[checker->rhsTerms-1] = calloc(20,sizeof(typeExpression));
+        checker->rhs[checker->rhsTerms-1] = calloc(1,sizeof(assignExpression));
+        checker->rhs[checker->rhsTerms-1]->varType = calloc(1,sizeof(typeExpression));
     }
-    
-    dataType* currVar = T->firstVariable;
-    while (currVar!=NULL)
+    // printf("%d %s\n",numid,id);
+    if(numid)
     {
-        if(!strcmp(id,currVar->varName)) {            
-            checker->rhs[checker->rhsTerms-1]->typeName = calloc(1,strlen(currVar->type->typeName)+1);
-            strcpy(checker->rhs[checker->rhsTerms-1]->typeName,currVar->type->typeName);
-            checker->rhs[checker->rhsTerms-1]->dataType = currVar->type->dataType;
-            checker->rhs[checker->rhsTerms-1]->arrayType = currVar->type->arrayType;
+        dataType* currVar = T->firstVariable;
+        while (currVar!=NULL)
+        {
+            if(!strcmp(varName,currVar->varName)) {            
+                checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,strlen(currVar->type->typeName)+1);
+                strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,currVar->type->typeName);
+                checker->rhs[checker->rhsTerms-1]->varType->dataType = currVar->type->dataType;
+                checker->rhs[checker->rhsTerms-1]->varType->arrayType = currVar->type->arrayType;
+                return true;
+            }
+            currVar = currVar->next;
+        }
+        checker->rhs[checker->rhsTerms-1]->varType->dataType = _error;
+        checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,13);
+        strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,"<type=ERROR>");
+        return false;
+    }
+    else
+    {
+        int flag = 0;
+        for(int i = 0;i<strlen(varName);i++)
+        {
+            if(varName[i] < '0' || varName[i] > '9')
+                flag = 1;
+        }
+        if(!flag)
+        {
+            checker->rhs[checker->rhsTerms-1]->varType->dataType = integer;
+            checker->rhs[checker->rhsTerms-1]->varType->isNum = true;
+            checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,16);
+            strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,"<type=integer>");
             return true;
         }
-        currVar = currVar->next;
+        checker->rhs[checker->rhsTerms-1]->varType->dataType = _error;
+        checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,13);
+        strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,"<type=ERROR>");
+        return false;
     }
-    checker->rhs[checker->rhsTerms-1]->dataType = _error;
-    checker->rhs[checker->rhsTerms-1]->typeName = calloc(1,13);
-    strcpy(checker->rhs[checker->rhsTerms-1]->typeName,"<type=ERROR>");
-    return false;
 }
 
 void findIdIntypeExprTable(char* id , typeExpression* type, typeExpressionTable T) {
@@ -222,7 +251,6 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
     int* arrayCheck = NULL;
     bool isMultID = false;
     bool isAssignStatement = false;
-
 do
 {
     traverseNode->currNode = traverseNode->left_most_child;
@@ -248,269 +276,288 @@ do
         isMultID = false;
         isAssignStatement = true;
     }
-
+    
     if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == ASSIGN_STATEMENT) {
         bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
-        if(assignmentTypeChecker->lhs->dataType == _error) {
+        if(assignmentTypeChecker->lhs->varType->dataType == _error) {
             printf("Type error at line %d, ", traverseNode->linenum);
             added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
-            currTypeExpression = assignmentTypeChecker->lhs;
+            currTypeExpression = assignmentTypeChecker->lhs->varType;
         }
     }
-    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == IDX1 && traverseNode->parent->parent->parent->non_term == TERM) {
-        bool added = initRHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
-        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->dataType == _error) {
+    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == IDX1 && (traverseNode->parent->parent->parent->non_term == TERM || traverseNode->parent->parent->parent->non_term == TERM_DASH)) {
+        bool added = initRHSAssign(1,traverseNode->lexeme,T,assignmentTypeChecker);
+        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType->dataType == _error) {
             printf("Type error at line %d, ", traverseNode->linenum);
             added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
-            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1];
+            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType;
         }
     }
-    
-    if(traverseNode->parent !=NULL) {
-        if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
-            if(currTypeExpression->dataType != _error)
-            { 
-                currTypeExpression->dataType = _prim;
-                computePrimtypeExpr(currTypeExpression,traverseNode->term);
-                currTypeExpression->arrayType = NA;}
-            }
-        if(!traverseNode->is_terminal && traverseNode->parent->non_term == ARRAY) {
-            if(traverseNode->non_term == JAGGED) {
-                if(currTypeExpression->dataType != _error) {
-                    currTypeExpression->dataType = _jagged;
-                    currTypeExpression->arrayType = NA;
-                    currTypeExpression->dimensions = 2;
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX1 && (traverseNode->parent->parent->non_term == TERM || traverseNode->parent->parent->non_term == TERM_DASH)) {
+        bool added = initRHSAssign(0,traverseNode->lexeme,T,assignmentTypeChecker);
+        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType->dataType == _error) {
+            printf("Type error at line %d, ", traverseNode->linenum);
+            if(!added)
+                printf("number %s has not an integer type\n",traverseNode->lexeme);
+            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType;
+        }
+    }
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX1 && (traverseNode->parent->parent->non_term == TERM || traverseNode->parent->parent->non_term == TERM_DASH)) {
+        bool added = initRHSAssign(0,traverseNode->lexeme,T,assignmentTypeChecker);
+        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType->dataType == _error) {
+            printf("Type error at line %d, ", traverseNode->linenum);
+            if(!added)
+                printf("number %s has not an integer type\n",traverseNode->lexeme);
+            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType;
+        }
+    }
+    {
+        if(traverseNode->parent !=NULL) {
+            if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {
+                if(currTypeExpression->dataType != _error)
+                { 
+                    currTypeExpression->dataType = _prim;
+                    computePrimtypeExpr(currTypeExpression,traverseNode->term);
+                    currTypeExpression->arrayType = NA;}
                 }
+            if(!traverseNode->is_terminal && traverseNode->parent->non_term == ARRAY) {
+                if(traverseNode->non_term == JAGGED) {
+                    if(currTypeExpression->dataType != _error) {
+                        currTypeExpression->dataType = _jagged;
+                        currTypeExpression->arrayType = NA;
+                        currTypeExpression->dimensions = 2;
+                    }
+                }
+                else
+                {
+                    if(currTypeExpression->dataType != _error)
+                    {
+                        currTypeExpression->dataType = _array;
+                        currTypeExpression->dimensions = 0;
+                    }
+                }
+                
+            }
+        }
+        if(!traverseNode->is_terminal && traverseNode->non_term == VAR_LIST) {
+            isMultID = true;
+        }    
+
+        if(traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == MULT_ID || traverseNode->parent->non_term == VAR_LIST || traverseNode->parent->non_term == SINGLE_DECLARE)) {
+            push(mainStack,*traverseNode);
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
+            if(currTypeExpression->dimensions == 0) {
+                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                    currTypeExpression->range_R1[0] = traverseNode->lexeme;
+                }
+                else if(currTypeExpression->dataType != _error) {
+                    currTypeExpression->range_R1[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
+                }
+            }
+            else {
+                if(currTypeExpression->dimensions == 1) {
+                    
+                    if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                        currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
+                        currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
+                        currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
+                        currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
+                    }
+                    else if(currTypeExpression->dataType != _error){
+                        currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                        currTypeExpression->dimensions++;
+                    }
+                }
+                else {
+
+                    if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                        currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
+                        currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
+                        currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
+                    }
+                    else if(currTypeExpression->dataType != _error){
+                        currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                        currTypeExpression->dimensions++;
+                    }
+                }
+                
+            }
+        }
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
+            if(currTypeExpression->dimensions == 0) {
+                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                    currTypeExpression->range_R1[0] = traverseNode->lexeme;
+                }
+                else if(currTypeExpression->dataType != _error) {
+                    currTypeExpression->range_R1[1] = traverseNode->lexeme;
+                    currTypeExpression->dimensions++;
+                }
+            }
+            else {
+                if(currTypeExpression->dimensions == 1) {
+                    
+                    if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                        currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
+                        currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
+                        currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
+                        currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
+                    }
+                    else if(currTypeExpression->dataType != _error){
+                        currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                        currTypeExpression->dimensions++;
+                    }
+                }
+                else {
+
+                    if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+                        currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
+                        currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
+                        currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
+                    }
+                    else if(currTypeExpression->dataType != _error) {
+                        currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
+                        currTypeExpression->dimensions++;
+                    }
+                }
+                
+            }
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == JAGGED) {
+            if(traverseNode->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
+
+                currTypeExpression->range_R1[0] = traverseNode->lexeme;
+                currTypeExpression->low = atoi(traverseNode->lexeme);
+            }
+            else if(currTypeExpression->dataType != _error){
+                currTypeExpression->range_R1[1] = traverseNode->lexeme;
+                currTypeExpression->high = atoi(traverseNode->lexeme);
+                arrayCheck = calloc(currTypeExpression->high - currTypeExpression->low + 1,sizeof(int));
+            }
+
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == of && traverseNode->parent->non_term == TD_INIT && currTypeExpression->dataType != _error) {
+            currTypeExpression->tdJaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(int*));
+            for(int i=0;i<currTypeExpression->high-currTypeExpression->low+1;i++) {
+                currTypeExpression->tdJaggedArrayRange.ranges[i] = calloc(2,sizeof(int));
+            }
+            currTypeExpression->tdJaggedArrayRange.index = 0;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == sq_op && traverseNode->parent->non_term == THD_INIT && currTypeExpression->dataType != _error) {
+            currTypeExpression->dimensions = 3;
+            currTypeExpression->thdJaggedArrayRange.subRanges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(thd_sub_range));
+            currTypeExpression->thdJaggedArrayRange.index = 0;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
+            currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] = atoi(traverseNode->lexeme);
+            currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1] = 0;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_LIST && currTypeExpression->dataType!=_error) {
+            currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]++;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS && currTypeExpression->dataType!=_error) {
+            if(currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]){
+                printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, sub-range does not match in 2D jagged array\n", traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
+            }
+            currTypeExpression->tdJaggedArrayRange.index++;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
+            int number = atoi(traverseNode->lexeme);
+            if(number<currTypeExpression->low || number>currTypeExpression->high) {
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, index out of bounds in 2D jagged array\n", traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
+            }
+            else if(arrayCheck[number-currTypeExpression->low]){
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, multiple declarations of same index in 2D jagged array\n", traverseNode->linenum);     
+                currTypeExpression->linenum = traverseNode->linenum;
             }
             else
             {
-                if(currTypeExpression->dataType != _error)
-                {
-                    currTypeExpression->dataType = _array;
-                    currTypeExpression->dimensions = 0;
-                }
+                arrayCheck[number-currTypeExpression->low] = true;
             }
             
         }
-    }
-    if(!traverseNode->is_terminal && traverseNode->non_term == VAR_LIST) {
-        isMultID = true;
-    }    
 
-    if(traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == MULT_ID || traverseNode->parent->non_term == VAR_LIST || traverseNode->parent->non_term == SINGLE_DECLARE)) {
-        push(mainStack,*traverseNode);
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
-        if(currTypeExpression->dimensions == 0) {
-            if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                currTypeExpression->range_R1[0] = traverseNode->lexeme;
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
+            int number = atoi(traverseNode->lexeme);
+            // printf("%d \n",number);
+            if(number<currTypeExpression->low || number>currTypeExpression->high) {
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, index out of bounds in 3D jagged array\n", traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
             }
-            else if(currTypeExpression->dataType != _error) {
-                currTypeExpression->range_R1[1] = traverseNode->lexeme;
-                currTypeExpression->dimensions++;
+            else if(arrayCheck[number-currTypeExpression->low]){
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, multiple declarations of same index in 3D jagged array\n", traverseNode->linenum);     
+                currTypeExpression->linenum = traverseNode->linenum;
+            }
+            else
+            {
+                arrayCheck[number-currTypeExpression->low] = true;
             }
         }
-        else {
-            if(currTypeExpression->dimensions == 1) {
-                
-                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                    currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
-                    currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
-                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
-                    currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
-                }
-                else if(currTypeExpression->dataType != _error){
-                    currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
-                    currTypeExpression->dimensions++;
-                }
-            }
-            else {
 
-                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                    currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
-                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
-                    currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
-                }
-                else if(currTypeExpression->dataType != _error){
-                    currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
-                    currTypeExpression->dimensions++;
-                }
-            }
-            
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
+            currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount = atoi(traverseNode->lexeme);
+            currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges = calloc(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount,sizeof(int));
+            currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index = 0;
         }
-    }
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
-        if(currTypeExpression->dimensions == 0) {
-            if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                currTypeExpression->range_R1[0] = traverseNode->lexeme;
-            }
-            else if(currTypeExpression->dataType != _error) {
-                currTypeExpression->range_R1[1] = traverseNode->lexeme;
-                currTypeExpression->dimensions++;
+
+        if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST_DASH && currTypeExpression->dataType != _error) {
+            currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index]++;
+        }
+
+        if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == INT_LIST_LIST_DASH && currTypeExpression->dataType != _error) {
+            currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index++;
+            if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index-1] == 0) {
+                currTypeExpression->dataType = _error;
+                printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
             }
         }
-        else {
-            if(currTypeExpression->dimensions == 1) {
-                
-                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                    currTypeExpression->rectArrayRanges = calloc(1,sizeof(rect_array_ranges));
-                    currTypeExpression->rectArrayRanges->first = calloc(1,sizeof(rect_array));
-                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->first;
-                    currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
+
+        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS && currTypeExpression->dataType != _error) {
+            currTypeExpression->thdJaggedArrayRange.index++;
+            if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
+                currTypeExpression->dataType = _error;
+                printf("Type definition error at line %d, sub-sub-range size does not match in 3D jagged array\n ", traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
+            }
+            if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index] == 0) {
+                currTypeExpression->dataType = _error;
+                printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
+                currTypeExpression->linenum = traverseNode->linenum;
+            }
+        }
+        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->right_sibling!=NULL && !traverseNode->right_sibling->is_terminal) {
+            if(traverseNode->right_sibling->left_most_child->non_term == EPS) {
+                if(traverseNode->right_sibling->non_term == TD_VALS_DASH) {
+                    if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->tdJaggedArrayRange.index) {
+                        printf("Type definition error at line %d, sub-range size does not match in 2D jagged array\n", traverseNode->linenum);
+                    } 
                 }
-                else if(currTypeExpression->dataType != _error){
-                    currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
-                    currTypeExpression->dimensions++;
+                if(traverseNode->right_sibling->non_term == THD_VALS_DASH) {
+                    if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->thdJaggedArrayRange.index) {
+                        printf("Type definition error at line %d, sub-range size does not match in 3D jagged array\n", traverseNode->linenum);
+                    } 
                 }
             }
-            else {
-
-                if(traverseNode->parent->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-                    currTypeExpression->rectArrayRanges->last->next = calloc(1,sizeof(rect_array));
-                    currTypeExpression->rectArrayRanges->last = currTypeExpression->rectArrayRanges->last->next;
-                    currTypeExpression->rectArrayRanges->last->range[0] = traverseNode->lexeme;
-                }
-                else if(currTypeExpression->dataType != _error) {
-                    currTypeExpression->rectArrayRanges->last->range[1] = traverseNode->lexeme;
-                    currTypeExpression->dimensions++;
-                }
-            }
-            
         }
     }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == JAGGED) {
-        if(traverseNode->right_sibling->term == ddot && currTypeExpression->dataType != _error) {
-
-            currTypeExpression->range_R1[0] = traverseNode->lexeme;
-            currTypeExpression->low = atoi(traverseNode->lexeme);
-        }
-        else if(currTypeExpression->dataType != _error){
-            currTypeExpression->range_R1[1] = traverseNode->lexeme;
-            currTypeExpression->high = atoi(traverseNode->lexeme);
-            arrayCheck = calloc(currTypeExpression->high - currTypeExpression->low + 1,sizeof(bool));
-        }
-
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == of && traverseNode->parent->non_term == TD_INIT && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdJaggedArrayRange.ranges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(int*));
-        for(int i=0;i<currTypeExpression->high-currTypeExpression->low+1;i++) {
-            currTypeExpression->tdJaggedArrayRange.ranges[i] = calloc(2,sizeof(int));
-        }
-        currTypeExpression->tdJaggedArrayRange.index = 0;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == sq_op && traverseNode->parent->non_term == THD_INIT && currTypeExpression->dataType != _error) {
-        currTypeExpression->dimensions = 3;
-        currTypeExpression->thdJaggedArrayRange.subRanges = calloc(currTypeExpression->high-currTypeExpression->low+1,sizeof(thd_sub_range));
-        currTypeExpression->thdJaggedArrayRange.index = 0;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
-        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] = atoi(traverseNode->lexeme);
-        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1] = 0;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_LIST && currTypeExpression->dataType!=_error) {
-        currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]++;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS && currTypeExpression->dataType!=_error) {
-        if(currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]){
-            printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, sub-range does not match in 2D jagged array\n", traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        currTypeExpression->tdJaggedArrayRange.index++;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == TD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
-        int number = atoi(traverseNode->lexeme);
-        if(number<currTypeExpression->low || number>currTypeExpression->high) {
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, index out of bounds in 2D jagged array\n", traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        else if(arrayCheck[number-currTypeExpression->low]){
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, multiple declarations of same index in 3D jagged array\n", traverseNode->linenum);     
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        else
-        {
-            arrayCheck[number-currTypeExpression->low] = true;
-        }
-        
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == sq_cl && currTypeExpression->dataType != _error) {
-        int number = atoi(traverseNode->lexeme);
-        if(number<currTypeExpression->low || number>currTypeExpression->high) {
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, index out of bounds in 3D jagged array\n", traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        else if(arrayCheck[number-currTypeExpression->low]){
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, multiple declarations of same index in 3D jagged array\n", traverseNode->linenum);     
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        else
-        {
-            arrayCheck[number-currTypeExpression->low] = true;
-        }
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == THD_VALS && traverseNode->right_sibling->term == col && currTypeExpression->dataType != _error) {
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount = atoi(traverseNode->lexeme);
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges = calloc(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subRangeCount,sizeof(int));
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index = 0;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == INT_VAR_LIST_DASH && currTypeExpression->dataType != _error) {
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index]++;
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == INT_LIST_LIST_DASH && currTypeExpression->dataType != _error) {
-        currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index++;
-        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index].index-1] == 0) {
-            currTypeExpression->dataType = _error;
-            printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-    }
-
-    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS && currTypeExpression->dataType != _error) {
-        currTypeExpression->thdJaggedArrayRange.index++;
-        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
-            currTypeExpression->dataType = _error;
-            printf("Type definition error at line %d, sub-sub-range size does not match in 3D jagged array\n ", traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-        if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index] == 0) {
-            currTypeExpression->dataType = _error;
-            printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
-            currTypeExpression->linenum = traverseNode->linenum;
-        }
-    }
-    if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->right_sibling!=NULL && !traverseNode->right_sibling->is_terminal) {
-        if(traverseNode->right_sibling->left_most_child->non_term == EPS) {
-            if(traverseNode->right_sibling->non_term == TD_VALS_DASH) {
-                if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->tdJaggedArrayRange.index) {
-                    printf("Type definition error at line %d, sub-range size does not match in 2D jagged array\n", traverseNode->linenum);
-                } 
-            }
-            if(traverseNode->right_sibling->non_term == THD_VALS_DASH) {
-                if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->thdJaggedArrayRange.index) {
-                    printf("Type definition error at line %d, sub-range size does not match in 3D jagged array\n", traverseNode->linenum);
-                } 
-            }
-        }
-    }
-
     //propogation code starts here
     
     if(traverseNode->currNode != NULL)

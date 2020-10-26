@@ -11,11 +11,16 @@ typedef struct{
 typedef enum {
     hasDivOp, isLHSReal, isAllBoolVar, hasAllBoolOp, hasRHSreal
 } assignment_flags;
-
+// id [ x y z ]
+typedef struct {
+    typeExpression* varType;
+    int* rangeToFound;
+    int rangeNums;
+} assignExpression;
 typedef struct {
     bool* assignmentFlags;
-    typeExpression* lhs;
-    typeExpression** rhs;
+    assignExpression* lhs;
+    assignExpression** rhs;
     int rhsTerms;
 } assignment_type_checker;
 

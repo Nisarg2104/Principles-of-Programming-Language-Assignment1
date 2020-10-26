@@ -23,7 +23,7 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
             
             strcpy(curr->lexeme,token);
             curr->token_name = returnTokenstreamTerminalVal(token);
-            // printf( "%d ", curr->token_name);
+            // printf( "%s %d \n",curr->lexeme,curr->token_name);
             token = strtok(NULL, " \t\r\n");
         }
         // printf("\n");
@@ -94,20 +94,13 @@ terminal returnTokenstreamTerminalVal(char* lex) {
         return div_op;
     else if(!strcmp(lex,"="))
         return eq_op;
-    else if(!strcmp(lex,""))
-        return eps;
     else if(!strcmp(lex,"|||"))
         return or_op;
     else if(!strcmp(lex,"&&&"))
         return and_op;
-    for(int i=0;i<strlen(lex);i++) {
-
-        if(lex[i]-'0' >= 0 && lex[i]-'0' > 9) {
-            return id;
-        }
-    }
+    else if(lex[0] < '0' || lex[0] > '9')
+        return id;
     return num;
-
 }
 
 non_terminal returnNonTerminalVal(char* lex) {

@@ -66,6 +66,7 @@ typedef struct{
     char* typeName;
     int dimensions;
     char* range_R1 [2];
+    bool isNum;
     int high;
     int low;
     int linenum;

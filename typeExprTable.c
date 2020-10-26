@@ -44,6 +44,36 @@ bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* che
     strcpy(checker->lhs->typeName,"<type=ERROR>");
     return false;
 }
+bool initRHSAssign(char* id, typeExpressionTable T, assignment_type_checker* checker) {
+    if(checker->rhsTerms == 0)
+    {
+        checker->rhs = calloc(20,sizeof(typeExpression*)); // Change the Number of RHS variables to Dynamic Array
+        checker->rhsTerms++;
+        checker->rhs[checker->rhsTerms-1] = calloc(20,sizeof(typeExpression));
+    }
+    else
+    {
+        checker->rhsTerms++;
+        checker->rhs[checker->rhsTerms-1] = calloc(20,sizeof(typeExpression));
+    }
+    
+    dataType* currVar = T->firstVariable;
+    while (currVar!=NULL)
+    {
+        if(!strcmp(id,currVar->varName)) {            
+            checker->rhs[checker->rhsTerms-1]->typeName = calloc(1,strlen(currVar->type->typeName)+1);
+            strcpy(checker->rhs[checker->rhsTerms-1]->typeName,currVar->type->typeName);
+            checker->rhs[checker->rhsTerms-1]->dataType = currVar->type->dataType;
+            checker->rhs[checker->rhsTerms-1]->arrayType = currVar->type->arrayType;
+            return true;
+        }
+        currVar = currVar->next;
+    }
+    checker->rhs[checker->rhsTerms-1]->dataType = _error;
+    checker->rhs[checker->rhsTerms-1]->typeName = calloc(1,13);
+    strcpy(checker->rhs[checker->rhsTerms-1]->typeName,"<type=ERROR>");
+    return false;
+}
 
 void findIdIntypeExprTable(char* id , typeExpression* type, typeExpressionTable T) {
     dataType* currVar = T->firstVariable;
@@ -227,7 +257,14 @@ do
             currTypeExpression = assignmentTypeChecker->lhs;
         }
     }
-
+    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == IDX1 && traverseNode->parent->parent->parent->non_term == TERM) {
+        bool added = initRHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
+        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->dataType == _error) {
+            printf("Type error at line %d, ", traverseNode->linenum);
+            added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
+            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1];
+        }
+    }
     
     if(traverseNode->parent !=NULL) {
         if(traverseNode->is_terminal && traverseNode->parent->non_term == PRIM_TYPE) {

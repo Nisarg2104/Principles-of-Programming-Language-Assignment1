@@ -9,7 +9,7 @@ typedef struct{
 } stack;
 
 typedef enum {
-    hasDivOp, isLHSReal, isBoolVar, hasBoolOp
+    hasDivOp, isLHSReal, isAllBoolVar, hasAllBoolOp, hasRHSreal
 } assignment_flags;
 
 typedef struct {

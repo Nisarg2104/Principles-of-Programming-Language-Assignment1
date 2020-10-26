@@ -36,6 +36,8 @@ bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* che
             strcpy(checker->lhs->varType->typeName,currVar->type->typeName);
             checker->lhs->varType->dataType = currVar->type->dataType;
             checker->lhs->varType->arrayType = currVar->type->arrayType;
+            checker->lhs->varType->primType = currVar->type->primType;
+            // printf("%d\n",currVar->type->linenum);
             return true;
         }
         currVar = currVar->next;
@@ -71,7 +73,9 @@ bool initRHSAssign(bool numid,char* varName, typeExpressionTable T, assignment_t
                 checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,strlen(currVar->type->typeName)+1);
                 strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,currVar->type->typeName);
                 checker->rhs[checker->rhsTerms-1]->varType->dataType = currVar->type->dataType;
+                checker->rhs[checker->rhsTerms-1]->varType->primType = currVar->type->primType;
                 checker->rhs[checker->rhsTerms-1]->varType->arrayType = currVar->type->arrayType;
+                // printf("%d\n",currVar->type->linenum);
                 return true;
             }
             currVar = currVar->next;
@@ -91,7 +95,8 @@ bool initRHSAssign(bool numid,char* varName, typeExpressionTable T, assignment_t
         }
         if(!flag)
         {
-            checker->rhs[checker->rhsTerms-1]->varType->dataType = integer;
+            checker->rhs[checker->rhsTerms-1]->varType->dataType = _prim;
+            checker->rhs[checker->rhsTerms-1]->varType->primType = _integer;
             checker->rhs[checker->rhsTerms-1]->varType->isNum = true;
             checker->rhs[checker->rhsTerms-1]->varType->typeName = calloc(1,16);
             strcpy(checker->rhs[checker->rhsTerms-1]->varType->typeName,"<type=integer>");
@@ -265,7 +270,53 @@ do
     
     if(!traverseNode->is_terminal && traverseNode->non_term == ASSIGN_STATEMENT) {
         if(assignmentTypeChecker!= NULL)
+        {
+            //<type=sjkfnks>
+            //LHS,not equaltype==
+            // process assignment Type Checker
+            //LHS Bool: Rhs has non bool var or Rhs has non bool operator
+            //Array : All should have same typeExpression and no div operator
+            //Int : Accessing element out of bounds in an array or any non integer variable or a division operator
+            //Real : If integer is in expression then on left ther must be +/- operator and / after it and an integer after /.
+                   //: Elements on both sides of / should be same. 
+            //Find Type Expression of LHS
+            //Compare it with all elements in RHS
+            //Proper operators check
+            //d=e/c;
+            // ranges add 
+            // operators add
+            int flag = 0;
+            if(assignmentTypeChecker->lhs->varType->dataType == _error)
+            {
+                flag = 1;
+                for(int i = 0;i<assignmentTypeChecker->rhsTerms;i++)
+                {
+                    if(assignmentTypeChecker->rhs[i]->varType->dataType == _error)
+                    {
+                        flag = 1;
+                    }
+                }
+            }
+            if(assignmentTypeChecker->lhs->rangeNums == 0 && (assignmentTypeChecker->lhs->varType->dataType == _array || assignmentTypeChecker->lhs->varType->dataType == _jagged || (assignmentTypeChecker->lhs->varType->dataType == _prim && assignmentTypeChecker->lhs->varType->primType == _boolean )))
+            {
+                for(int i = 0;i<assignmentTypeChecker->rhsTerms;i++)
+                {
+                    if(strcmp(assignmentTypeChecker->lhs->varType->typeName,assignmentTypeChecker->rhs[i]->varType->typeName))
+                    {
+                        flag = 1;
+                    }
+                }
+            }
+            if(assignmentTypeChecker->lhs->varType->dataType == _prim && assignmentTypeChecker->lhs->varType->primType == _boolean)
+            {
+                if(assignmentTypeChecker->operators[0] + assignmentTypeChecker->operators[1] + assignmentTypeChecker->operators[2] + assignmentTypeChecker->operators[3] > 0)
+                    flag = 1;
+                    // printf("%d %s\n",assignmentTypeChecker->operators[0] + assignmentTypeChecker->operators[1] + assignmentTypeChecker->operators[2] + assignmentTypeChecker->operators[3],assignmentTypeChecker->lhs->varType->typeName);
+            }
+            if(flag)
+                printf("Type Error at line : %d\n",assignmentTypeChecker->linenum);
             free(assignmentTypeChecker);
+        }
         assignmentTypeChecker = NULL;
         assignmentTypeChecker = calloc(1,sizeof(assignment_type_checker));
         assignmentTypeChecker->assignmentFlags = calloc(4,sizeof(bool));
@@ -279,6 +330,7 @@ do
     
     if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == ASSIGN_STATEMENT) {
         bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
+        assignmentTypeChecker->linenum = traverseNode->linenum;
         if(assignmentTypeChecker->lhs->varType->dataType == _error) {
             printf("Type error at line %d, ", traverseNode->linenum);
             added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
@@ -302,14 +354,23 @@ do
             currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType;
         }
     }
-    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX1 && (traverseNode->parent->parent->non_term == TERM || traverseNode->parent->parent->non_term == TERM_DASH)) {
-        bool added = initRHSAssign(0,traverseNode->lexeme,T,assignmentTypeChecker);
-        if(assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType->dataType == _error) {
-            printf("Type error at line %d, ", traverseNode->linenum);
-            if(!added)
-                printf("number %s has not an integer type\n",traverseNode->lexeme);
-            currTypeExpression = assignmentTypeChecker->rhs[assignmentTypeChecker->rhsTerms - 1]->varType;
-        }
+    if(traverseNode->is_terminal && traverseNode->term == add_op && traverseNode->parent->non_term == ASO_OP) {
+        assignmentTypeChecker->operators[0]++;
+    }
+    if(traverseNode->is_terminal && traverseNode->term == sub_op && traverseNode->parent->non_term == ASO_OP) {
+        assignmentTypeChecker->operators[1]++;
+    }
+    if(traverseNode->is_terminal && traverseNode->term == mul_op && traverseNode->parent->non_term == MDA_OP) {
+        assignmentTypeChecker->operators[2]++;
+    }
+    if(traverseNode->is_terminal && traverseNode->term == div_op && traverseNode->parent->non_term == MDA_OP) {
+        assignmentTypeChecker->operators[3]++;
+    }
+    if(traverseNode->is_terminal && traverseNode->term == or_op && traverseNode->parent->non_term == ASO_OP) {
+        assignmentTypeChecker->operators[4]++;
+    }
+    if(traverseNode->is_terminal && traverseNode->term == and_op && traverseNode->parent->non_term == MDA_OP) {
+        assignmentTypeChecker->operators[5]++;
     }
     {
         if(traverseNode->parent !=NULL) {

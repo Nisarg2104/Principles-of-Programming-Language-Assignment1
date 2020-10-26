@@ -19,8 +19,10 @@ typedef struct {
 } assignExpression;
 typedef struct {
     bool* assignmentFlags;
+    int linenum;
     assignExpression* lhs;
     assignExpression** rhs;
+    int operators[6];
     int rhsTerms;
 } assignment_type_checker;
 

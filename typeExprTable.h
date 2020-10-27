@@ -14,16 +14,17 @@ typedef enum {
 // id [ x y z ]
 typedef struct {
     typeExpression* varType;
+    char* varName;
     int* rangeToFound;
     int rangeNums;
 } assignExpression;
+
 typedef struct {
-    bool* assignmentFlags;
     int linenum;
     assignExpression* lhs;
-    assignExpression** rhs;
-    int operators[6];
-    int rhsTerms;
+    assignExpression* lRHS;
+    assignExpression* rRHS;
+    bool hasDivop,hasBoolop,hasMDAop,hasASOop[2];
 } assignment_type_checker;
 
 stack* create_stack();

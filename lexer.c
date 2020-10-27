@@ -98,7 +98,7 @@ terminal returnTokenstreamTerminalVal(char* lex) {
         return or_op;
     else if(!strcmp(lex,"&&&"))
         return and_op;
-    else if(lex[0] < '0' || lex[0] > '9')
+    else if(isalpha(lex[0]) || lex[0] == '_')
         return id;
     return num;
 }

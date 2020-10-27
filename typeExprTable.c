@@ -336,11 +336,50 @@ do
         }
     }
     if(traverseNode->is_terminal && traverseNode->term == add_op) {
-        // assignmentTypeChecker->hasASOop = true;
+        if(!assignmentTypeChecker->hasBoolop) {
+            computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker->hasDivop,assignmentTypeChecker->hasBoolop);
+            assignmentTypeChecker->lRHS = NULL;
+        }
+        else
+        {
+            if(assignmentTypeChecker->rRHS != NULL) {
+                currTypeExpression->dataType = _error;
+                currTypeExpression->typeName = calloc(1,13);
+                strcpy(currTypeExpression->typeName,"<type=error>");
+            }
+            else if(assignmentTypeChecker->lRHS->varType->dataType == _prim && assignmentTypeChecker->lRHS->varType->primType == _boolean) {
+                currTypeExpression->dataType = _error;
+                currTypeExpression->typeName = calloc(1,13);
+                strcpy(currTypeExpression->typeName,"<type=error>");
+                
+            }
+            else {
+                assignmentTypeChecker->hasBoolop = true;
+            }            
+        }
     }
     if(traverseNode->is_terminal && traverseNode->term == sub_op) {
-        // assignmentTypeChecker->operators[1]++;
-        // call pe hu
+        if(!assignmentTypeChecker->hasBoolop) {
+            computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker->hasDivop,assignmentTypeChecker->hasBoolop);
+            assignmentTypeChecker->lRHS = NULL;
+        }
+        else
+        {
+            if(assignmentTypeChecker->rRHS != NULL) {
+                currTypeExpression->dataType = _error;
+                currTypeExpression->typeName = calloc(1,13);
+                strcpy(currTypeExpression->typeName,"<type=error>");
+            }
+            else if(assignmentTypeChecker->lRHS->varType->dataType == _prim && assignmentTypeChecker->lRHS->varType->primType == _boolean) {
+                currTypeExpression->dataType = _error;
+                currTypeExpression->typeName = calloc(1,13);
+                strcpy(currTypeExpression->typeName,"<type=error>");
+                
+            }
+            else {
+                assignmentTypeChecker->hasBoolop = true;
+            }            
+        }
     }
     if(traverseNode->is_terminal && traverseNode->term == mul_op) {
         if(assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
@@ -355,9 +394,18 @@ do
 
     }
     if(traverseNode->is_terminal && traverseNode->term == div_op) {
-        assignmentTypeChecker->hasMDAop = true;
-        assignmentTypeChecker->hasDivop = true;
+        if(assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
+            currTypeExpression->dataType = _error;
+            currTypeExpression->typeName = calloc(1,13);
+            strcpy(currTypeExpression->typeName,"<type=error>");
+        }
+        else
+        {
+            assignmentTypeChecker->hasMDAop = true;
+            assignmentTypeChecker->hasDivop = true;
+        }        
     }
+
     if(traverseNode->is_terminal && traverseNode->term == or_op) {
         if(assignmentTypeChecker->hasBoolop) {
             computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker->hasDivop,assignmentTypeChecker->hasBoolop);
@@ -381,7 +429,14 @@ do
         }       
     }
     if(traverseNode->is_terminal && traverseNode->term == and_op) {
-        assignmentTypeChecker->operators[5]++;
+        assignmentTypeChecker->hasMDAop = true;
+        assignmentTypeChecker->hasDivop = true;
+        if(!(assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean)) {
+            currTypeExpression->dataType = _error;
+            currTypeExpression->typeName = calloc(1,13);
+            strcpy(currTypeExpression->typeName,"<type=error>");
+        }
+        
     }
 
     {

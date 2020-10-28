@@ -317,14 +317,23 @@ void printParseTree(parseTree *t) {
     int depth = 0;
     int count = 0;
     int flag = 0;
+    bool isDeclare = false;
     do {
         count++;
         traverseNode->currNode = traverseNode->left_most_child;
         traverseNode->is_terminal?runTerm(traverseNode->term):printf("%s ",printNonTerm[traverseNode->non_term]);
         traverseNode->is_terminal?printf("Terminal\n"):printf("Non Terminal\n");
-
         traverseNode->is_terminal?printf("Lexeme_Name : %s\n",traverseNode->lexeme),printf("Line_No : %d\n",traverseNode->linenum):printf("Rule_No : %d\n",traverseNode->rulenum);
         printf("Depth : %d\n",traverseNode->depth);
+        if(!traverseNode->is_terminal) {
+            if(traverseNode->non_term == DECLARE_STATEMENT)
+                isDeclare = true;
+            else if(traverseNode->non_term == ASSIGN_STATEMENT)
+                isDeclare = false;
+        }
+        if(isDeclare && traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == SINGLE_DECLARE || traverseNode->parent->non_term == MULT_ID)) {
+            printf("Type_Expr : %s\n", traverseNode->type->typeName);
+        }
         printf("\n");
         
         if(traverseNode->currNode != NULL) {

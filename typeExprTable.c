@@ -20,20 +20,20 @@ stack* create_stack(){
     stack *s = (stack *) calloc(1,sizeof(stack));
     s->capacity=1;
     s->top=-1;
-    s->arr=(parseTree *)calloc(1,sizeof(parseTree));
+    s->arr=(parseTree **)calloc(1,sizeof(parseTree*));
     return s;
 }
 
-void push(stack* s,parseTree r){
+void push(stack* s,parseTree* r){
     if(s->capacity==s->top+1){
         s->capacity=s->capacity*2;
-        s->arr=(parseTree*) realloc(s->arr,sizeof(parseTree)*s->capacity); 
+        s->arr=(parseTree**) realloc(s->arr,sizeof(parseTree*)*s->capacity); 
     }
     s->top++;
     s->arr[s->top]=r;
 }
 
-parseTree pop(stack *s){
+parseTree* pop(stack *s){
     if(s->top==-1) printf("Stack empty");
     else {
         s->top=s->top-1;
@@ -105,6 +105,25 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
                     i++;
                 }
             }
+            else
+            {
+                if(currVar->type->dimensions == 2) {
+                    if(var->rangeToFound[1] < 0 || var->rangeToFound[1] >= currVar->type->tdJaggedArrayRange.ranges[var->rangeToFound[0]-currVar->type->low][0]) {
+                        varToAdd->varType->dataType = _error;
+                        varToAdd->varType->typeName = calloc(1,13);
+                        strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                    }
+                }
+                else {
+                    if(var->rangeToFound[1] < 0 || var->rangeToFound[1] >= currVar->type->thdJaggedArrayRange.subRanges[var->rangeToFound[0]-currVar->type->low].subRangeCount || var->rangeToFound[2] < 0 || var->rangeToFound[2] >= currVar->type->thdJaggedArrayRange.subRanges[var->rangeToFound[0]-currVar->type->low].subSubRanges[var->rangeToFound[1]]) {
+                        varToAdd->varType->dataType = _error;
+                        varToAdd->varType->typeName = calloc(1,13);
+                        strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                    }
+                }
+                
+            }
+            
         }
     }
     if(varToAdd->varType->dataType != _error) {
@@ -708,10 +727,6 @@ do
         if(assignmentTypeChecker->lhs->varType->dataType == _error) {
             printf("type error at line : %d\n", traverseNode->linenum);
         }
-        else
-        {
-            printf("line %d is ok\n",traverseNode->linenum);
-        }
         assignmentTypeChecker->rRHS = NULL;
         assignmentTypeChecker->lRHS = NULL;
         free(assignmentTypeChecker->lhs);
@@ -752,7 +767,7 @@ do
         }    
 
         if(traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == MULT_ID || traverseNode->parent->non_term == VAR_LIST || traverseNode->parent->non_term == SINGLE_DECLARE)) {
-            push(mainStack,*traverseNode);
+            push(mainStack,traverseNode);
         }
 
         if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
@@ -1005,14 +1020,14 @@ do
                     
                 }
                 if(isMultID && mainStack->top == 0){
-                   printf("Warning at line %d, too few variables in multi declare statement\n", mainStack->arr[mainStack->top].linenum); 
+                   printf("Warning at line %d, too few variables in multi declare statement\n", mainStack->arr[mainStack->top]->linenum); 
                 }
                 
                 while(mainStack->top!=-1) {
-                    parseTree currID = pop(mainStack);
-                    currID.type = currTypeExpression;
-                    currID.parent->type = currTypeExpression;
-                    // printf("%s %s\n",currID.lexeme,currTypeExpression->typeName);
+                    parseTree* currID = pop(mainStack);
+                    currID->type = currTypeExpression;
+                    currID->parent->type = currTypeExpression;
+                    // printf("%s %s\n",currID->lexeme,currTypeExpression->typeName);
 
                     if(T->firstVariable==NULL) {
                         T->firstVariable =(dataType*) calloc(1,sizeof(dataType));
@@ -1026,7 +1041,7 @@ do
                     }
                     currentVariable->type = currTypeExpression;
                     currentVariable->varName = (char*)calloc(1,MAX_VAR_NAME_LEN);
-                    strcpy(currentVariable->varName,currID.lexeme);
+                    strcpy(currentVariable->varName,currID->lexeme);
                 }
             }
 

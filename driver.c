@@ -63,6 +63,11 @@ int main(){
                     fc[0]=1;
                     
                 }
+                if(!fc[1]){
+                    printf("Warning! Type Expression Table not created! Creating...\n");
+                    traverseParseTree(t,T);
+                    fc[1]=1;    
+                }
                 printParseTree(t);
                 break;
             case 4:

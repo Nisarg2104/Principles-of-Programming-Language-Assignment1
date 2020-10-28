@@ -1,6 +1,7 @@
 #include "typeExprTable.h"
 
 bool addTermToRHS(assignExpression* incomingVar, assignment_type_checker* checker);
+bool addToLHS(assignExpression* id1, assignment_type_checker* checker);
  //<type=sjkfnks>
             //LHS,not equaltype==
             // process assignment Type Checker
@@ -40,38 +41,111 @@ parseTree pop(stack *s){
     return s->arr[s->top+1];
 }
 
-bool initLHSAssign(void* id1, typeExpressionTable T, assignment_type_checker* checker, int type) {
-
-    if(!type) {
-        char* id2 = (char*) id1;
-        assignExpression* temp = calloc(1,sizeof(assignExpression));
-        temp->rangeNums = 0;
-        temp->varName = calloc(1,MAX_VAR_NAME_LEN);
-        strcpy(temp->varName,id2);
-        temp->varType = calloc(1,sizeof(typeExpression));
-        dataType* currVar = T->firstVariable;
-        while (currVar!=NULL)
-        {
-            if(!strcmp(id2,currVar->varName)) {            
-                temp->varType->typeName = calloc(1,strlen(currVar->type->typeName)+1);
-                strcpy(temp->varType->typeName,currVar->type->typeName);
-                temp->varType->dataType = currVar->type->dataType;
-                temp->varType->arrayType = currVar->type->arrayType;
-                temp->varType->primType = currVar->type->primType;
-                // printf("%d\n",currVar->type->linenum);
-                break;
+void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type_checker* checker) {
+    assignExpression* varToAdd = calloc(1,sizeof(assignExpression));
+    varToAdd->varType = calloc(1,sizeof(typeExpression));
+    varToAdd->varName = calloc(1,MAX_VAR_NAME_LEN);
+    strcpy(varToAdd->varName,var->varName);
+    dataType* currVar = T->firstVariable;
+    while (currVar!=NULL)
+    {
+        if(!strcmp(var->varName,currVar->varName)) {            
+            // printf("%d\n",currVar->type->linenum);
+            break;
+        }
+        currVar = currVar->next;
+    }
+    if(currVar == NULL) {
+        varToAdd->varType->dataType = _error;
+        varToAdd->varType->typeName = calloc(1,13);
+        strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+    }
+    else
+    {
+        if(currVar->type->dimensions != var->rangeNums) {
+            varToAdd->varType->dataType = _error;
+            varToAdd->varType->typeName = calloc(1,13);
+            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+        }
+        else {
+            if(isalnum(currVar->type->range_R1[0][0]) && !isalpha(currVar->type->range_R1[0][0])) {
+                if(var->rangeToFound[0] != -1 && var->rangeToFound[0] < atoi(currVar->type->range_R1[0])){
+                    varToAdd->varType->dataType = _error;
+                    varToAdd->varType->typeName = calloc(1,13);
+                    strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                }
             }
-            currVar = currVar->next;
+            if(isalnum(currVar->type->range_R1[1][0]) && !isalpha(currVar->type->range_R1[1][0])) {
+                if(var->rangeToFound[0] != -1 && var->rangeToFound[0] > atoi(currVar->type->range_R1[1])){
+                    varToAdd->varType->dataType = _error;
+                    varToAdd->varType->typeName = calloc(1,13);
+                    strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                }
+            }
+            int i=1;
+            if(currVar->type->dataType == _array) {
+                rect_array* curr = currVar->type->rectArrayRanges->first;
+                while (curr!=NULL)
+                {
+                    if(isalnum(curr->range[0][0]) && !isalpha(curr->range[0][0])) {
+                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
+                            varToAdd->varType->dataType = _error;
+                            varToAdd->varType->typeName = calloc(1,13);
+                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                        }
+                    }
+                    if(isalnum(curr->range[1][0]) && !isalpha(curr->range[1][0])) {
+                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
+                            varToAdd->varType->dataType = _error;
+                            varToAdd->varType->typeName = calloc(1,13);
+                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                        }
+                    }
+                    curr = curr->next;
+                    i++;
+                }
+            }
         }
-        if(currVar == NULL) {
-            temp->varType->dataType = _error;
-            strcpy(temp->varType->typeName,"<type=ERROR>");
+    }
+    if(varToAdd->varType->dataType != _error) {
+        varToAdd->varType->dataType = _prim;
+        varToAdd->varType->primType = _integer;
+        varToAdd->varType->typeName = calloc(1,15);
+        strcpy(varToAdd->varType->typeName,"<type=integer>");
+    }
+    addToLHS(varToAdd,checker);
+}
+
+bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* checker) {
+    assignExpression* temp = calloc(1,sizeof(assignExpression));
+    temp->rangeNums = 0;
+    temp->varName = calloc(1,MAX_VAR_NAME_LEN);
+    strcpy(temp->varName,id);
+    temp->varType = calloc(1,sizeof(typeExpression));
+    dataType* currVar = T->firstVariable;
+    while (currVar!=NULL)
+    {
+        if(!strcmp(id,currVar->varName)) {            
+            temp->varType->typeName = calloc(1,strlen(currVar->type->typeName)+1);
+            strcpy(temp->varType->typeName,currVar->type->typeName);
+            temp->varType->dataType = currVar->type->dataType;
+            temp->varType->arrayType = currVar->type->arrayType;
+            temp->varType->primType = currVar->type->primType;
+            // printf("%d\n",currVar->type->linenum);
+            break;
         }
-        initLHSAssign(temp,T,checker,1);
-        return currVar == NULL;
-    }    
-    
-    checker->lhs = (assignExpression*) id1;
+        currVar = currVar->next;
+    }
+    if(currVar == NULL) {
+        temp->varType->dataType = _error;
+        strcpy(temp->varType->typeName,"<type=ERROR>");
+    }
+    addToLHS(temp,checker);
+    return currVar != NULL;
+}
+
+bool addToLHS(assignExpression* var, assignment_type_checker* checker) {    
+    checker->lhs = var;
     return true;
 }
 
@@ -137,7 +211,82 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, bo
     return false;
 }
 
-void initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, int type) {
+void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_type_checker* checker) {
+    assignExpression* varToAdd = calloc(1,sizeof(assignExpression));
+    varToAdd->varType = calloc(1,sizeof(typeExpression));
+    varToAdd->varName = calloc(1,MAX_VAR_NAME_LEN);
+    strcpy(varToAdd->varName,var->varName);
+    dataType* currVar = T->firstVariable;
+    while (currVar!=NULL)
+    {
+        if(!strcmp(var->varName,currVar->varName)) {            
+            // printf("%d\n",currVar->type->linenum);
+            break;
+        }
+        currVar = currVar->next;
+    }
+    if(currVar == NULL) {
+        varToAdd->varType->dataType = _error;
+        varToAdd->varType->typeName = calloc(1,13);
+        strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+    }
+    else
+    {
+        if(currVar->type->dimensions != var->rangeNums) {
+            varToAdd->varType->dataType = _error;
+            varToAdd->varType->typeName = calloc(1,13);
+            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+        }
+        else {
+            if(isalnum(currVar->type->range_R1[0][0]) && !isalpha(currVar->type->range_R1[0][0])) {
+                if(var->rangeToFound[0] != -1 && var->rangeToFound[0] < atoi(currVar->type->range_R1[0])){
+                    varToAdd->varType->dataType = _error;
+                    varToAdd->varType->typeName = calloc(1,13);
+                    strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                }
+            }
+            if(isalnum(currVar->type->range_R1[1][0]) && !isalpha(currVar->type->range_R1[1][0])) {
+                if(var->rangeToFound[0] != -1 && var->rangeToFound[0] > atoi(currVar->type->range_R1[1])){
+                    varToAdd->varType->dataType = _error;
+                    varToAdd->varType->typeName = calloc(1,13);
+                    strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                }
+            }
+            int i=1;
+            if(currVar->type->dataType == _array) {
+                rect_array* curr = currVar->type->rectArrayRanges->first;
+                while (curr!=NULL)
+                {
+                    if(isalnum(curr->range[0][0]) && !isalpha(curr->range[0][0])) {
+                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
+                            varToAdd->varType->dataType = _error;
+                            varToAdd->varType->typeName = calloc(1,13);
+                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                        }
+                    }
+                    if(isalnum(curr->range[1][0]) && !isalpha(curr->range[1][0])) {
+                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
+                            varToAdd->varType->dataType = _error;
+                            varToAdd->varType->typeName = calloc(1,13);
+                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                        }
+                    }
+                    curr = curr->next;
+                    i++;
+                }
+            }
+        }
+    }
+    if(varToAdd->varType->dataType != _error) {
+        varToAdd->varType->dataType = _prim;
+        varToAdd->varType->primType = _integer;
+        varToAdd->varType->typeName = calloc(1,15);
+        strcpy(varToAdd->varType->typeName,"<type=integer>");
+    }
+    addTermToRHS(varToAdd,checker);
+}
+
+bool initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, int type) {
     if(type == 0) {
         assignExpression* varToAdd = calloc(1,sizeof(assignExpression));
         varToAdd->varName = calloc(1,MAX_VAR_NAME_LEN);
@@ -165,6 +314,7 @@ void initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, i
             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
         }
         addTermToRHS(varToAdd,checker);
+        return currVar!=NULL;
 
     }
     if(type == 1) {
@@ -181,10 +331,12 @@ void initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, i
         tempAssExpr->rangeToFound = NULL;
         tempAssExpr->varName = NULL;
         addTermToRHS(tempAssExpr,checker);
+        return true;
     }
 }
 
 bool addTermToRHS(assignExpression* incomingVar, assignment_type_checker* checker) {
+
     
     if(checker->lRHS == NULL) {
         checker->lRHS = incomingVar;
@@ -357,16 +509,6 @@ do
     if(!traverseNode->is_terminal && traverseNode->non_term == ASSIGN_STATEMENT) {
         if(assignmentTypeChecker!= NULL)
         {
-            // if(assignmentTypeChecker->lhs->varType->dataType == _error)
-            // {
-            //     if(assignmentTypeChecker->rRHS !=NULL)
-            //         assignmentTypeChecker->rRHS->varType->dataType = _error;
-            //         if(assignmentTypeChecker->lRHS !=NULL)
-            //         assignmentTypeChecker->lRHS->varType->dataType = _error;
-            // }
-            
-            // if(flag)
-            //     printf("Type Error at line : %d\n",assignmentTypeChecker->linenum);
             free(assignmentTypeChecker);
         }
         assignmentTypeChecker = NULL;
@@ -389,7 +531,7 @@ do
     
     if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == ASSIGN_STATEMENT) {
         if(!traverseNode->right_sibling->left_most_child->is_terminal) {
-            bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker,0);
+            bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
             assignmentTypeChecker->linenum = traverseNode->linenum;
             if(assignmentTypeChecker->lhs->varType->dataType == _error) {
                 printf("Type error at line %d, ", traverseNode->linenum);
@@ -405,17 +547,48 @@ do
             varToAdd->rangeToFound = NULL;
         } 
     }
-    // if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->parent->non_term == ID_DASH) {
-    //     varToAdd->rangeNums++;
-    //     if(varToAdd->rangeToFound == NULL)
-    //         varToAdd->rangeToFound = calloc(1,sizeof(int));
-    //     else
-    //         varToAdd->rangeToFound = realloc(varToAdd->rangeToFound,varToAdd->rangeNums*sizeof(int));      
-    // }
+    
+    
+    if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && (traverseNode->parent->parent->non_term == ID_DASH || traverseNode->parent->parent->non_term == IDX_LIST)) {
+        varToAdd->rangeNums++;
+        if(varToAdd->rangeToFound == NULL)
+            varToAdd->rangeToFound = calloc(15,sizeof(int));
+        
+        varToAdd->rangeToFound[varToAdd->rangeNums-1] = -1;
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX && (traverseNode->parent->parent->non_term == ID_DASH || traverseNode->parent->parent->non_term == IDX_LIST)) {
+        varToAdd->rangeNums++;
+        if(varToAdd->rangeToFound == NULL)
+            varToAdd->rangeToFound = calloc(15,sizeof(int));
+        
+        varToAdd->rangeToFound[varToAdd->rangeNums-1] = atoi(traverseNode->lexeme);
+    }
+
+    if(traverseNode->is_terminal && traverseNode->term == sq_cl && traverseNode->parent->non_term == ID_DASH) {
+        if(traverseNode->parent->parent->parent->non_term == ASSIGN_STATEMENT) {
+            initComplexLHS(varToAdd,T,assignmentTypeChecker);
+        }
+        else {
+            initComplexRHS(varToAdd,T,assignmentTypeChecker);
+        }
+        
+    }
 
     if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == ID1 && traverseNode->parent->parent->non_term == IDX1 && (traverseNode->parent->parent->parent->non_term == TERM || traverseNode->parent->parent->parent->non_term == TERM_DASH)) {
+        if(traverseNode->right_sibling->left_most_child->non_term == EPS){
+            if(!initRHS(traverseNode->lexeme,T,assignmentTypeChecker,0)) {
+                printf("Type error at line %d, variable %s not found\n", traverseNode->linenum,traverseNode->lexeme);            
+            }
+        }
+        else {
+            varToAdd = calloc(1,sizeof(assignExpression));
+            varToAdd->varName = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(varToAdd->varName,traverseNode->lexeme);
+            varToAdd->rangeNums = 0;
+            varToAdd->rangeToFound = NULL;
+        }
         
-        initRHS(traverseNode->lexeme,T,assignmentTypeChecker,0);
     }
     if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX1 && (traverseNode->parent->parent->non_term == TERM || traverseNode->parent->parent->non_term == TERM_DASH)) {
         initRHS(traverseNode->lexeme,T,assignmentTypeChecker,1);
@@ -567,6 +740,7 @@ do
                     if(currTypeExpression->dataType != _error)
                     {
                         currTypeExpression->dataType = _array;
+                        currTypeExpression->arrayType = STATIC;
                         currTypeExpression->dimensions = 0;
                     }
                 }
@@ -619,6 +793,7 @@ do
                 }
                 
             }
+            currTypeExpression->arrayType = DYNAMIC;
         }
         if(traverseNode->is_terminal && traverseNode->term == num && traverseNode->parent->non_term == IDX && traverseNode->parent->right_sibling->is_terminal && (traverseNode->parent->right_sibling->term == ddot || traverseNode->parent->right_sibling->term == sq_cl)) {
             if(currTypeExpression->dimensions == 0) {

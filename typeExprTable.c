@@ -1,5 +1,18 @@
 #include "typeExprTable.h"
-
+ //<type=sjkfnks>
+            //LHS,not equaltype==
+            // process assignment Type Checker
+            //LHS Bool: Rhs has non bool var or Rhs has non bool operator
+            //Array : All should have same typeExpression and no div operator
+            //Int : Accessing element out of bounds in an array or any non integer variable or a division operator
+            //Real : If integer is in expression then on left ther must be +/- operator and / after it and an integer after /.
+                   //: Elements on both sides of / should be same. 
+            //Find Type Expression of LHS
+            //Compare it with all elements in RHS
+            //Proper operators check
+            //d=e/c;
+            // ranges add 
+            // operators add
 stack* create_stack(){
     stack *s = (stack *) calloc(1,sizeof(stack));
     s->capacity=1;
@@ -50,7 +63,7 @@ bool initLHSAssign(void* id1, typeExpressionTable T, assignment_type_checker* ch
         }
         if(currVar == NULL) {
             temp->varType->dataType = _error;
-            strcpy(temp->varType->typeName,"<type=error>");
+            strcpy(temp->varType->typeName,"<type=ERROR>");
         }
         initLHSAssign(temp,T,checker,1);
         return currVar == NULL;
@@ -69,7 +82,7 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, bo
     if(expr2->varType->dataType == _error) {
         expr1->varType->dataType = _error;
         expr1->varType->typeName = calloc(1,14);
-        strcpy(expr1->varType->typeName,"<type=error>");
+        strcpy(expr1->varType->typeName,"<type=ERROR>");
         return false;
     }
 
@@ -122,7 +135,7 @@ bool addTermToRHS(void* var, typeExpressionTable T, assignment_type_checker* che
         if(currVar == NULL) {
             varToAdd->varType->dataType = _error;
             varToAdd->varType->typeName = calloc(1,13);
-            strcpy(varToAdd->varType->typeName,"<type=error>");
+            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
         }
         addTermToRHS(varToAdd,T,checker,2);
 
@@ -141,7 +154,7 @@ bool addTermToRHS(void* var, typeExpressionTable T, assignment_type_checker* che
         tempAssExpr->rangeToFound = NULL;
         tempAssExpr->varName = NULL;
         addTermToRHS(tempAssExpr,T,checker,2);
-    }// 
+    }
     if(type == 2) {
         assignExpression* incomingVar = (assignExpression*) var;
         if(checker->lRHS == NULL) {
@@ -318,20 +331,7 @@ do
     if(!traverseNode->is_terminal && traverseNode->non_term == ASSIGN_STATEMENT) {
         if(assignmentTypeChecker!= NULL)
         {
-            //<type=sjkfnks>
-            //LHS,not equaltype==
-            // process assignment Type Checker
-            //LHS Bool: Rhs has non bool var or Rhs has non bool operator
-            //Array : All should have same typeExpression and no div operator
-            //Int : Accessing element out of bounds in an array or any non integer variable or a division operator
-            //Real : If integer is in expression then on left ther must be +/- operator and / after it and an integer after /.
-                   //: Elements on both sides of / should be same. 
-            //Find Type Expression of LHS
-            //Compare it with all elements in RHS
-            //Proper operators check
-            //d=e/c;
-            // ranges add 
-            // operators add
+           
             if(assignmentTypeChecker->lhs->varType->dataType == _error)
             {
                 if(assignmentTypeChecker->rRHS !=NULL)
@@ -378,8 +378,7 @@ do
             strcpy(varToAdd->varName,traverseNode->lexeme);
             varToAdd->rangeNums = 0;
             varToAdd->rangeToFound = NULL;
-        }
-        
+        } 
     }
     // if(traverseNode->is_terminal && traverseNode->term == id && traverseNode->parent->non_term == IDX && traverseNode->parent->parent->non_term == ID_DASH) {
     //     varToAdd->rangeNums++;
@@ -399,6 +398,8 @@ do
 
     if(traverseNode->is_terminal && traverseNode->term == add_op) {
         if(!assignmentTypeChecker->hasBoolop) {
+            // It is Cool too
+            // lRHS and rRHS are boolean case not considered
             if(assignmentTypeChecker->rRHS == NULL) {
                 assignmentTypeChecker->hasASOop[0] = true;
             }
@@ -411,15 +412,18 @@ do
         }
         else
         {
+            // It is fine
             computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker->hasDivop,assignmentTypeChecker->hasBoolop);
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");
             assignmentTypeChecker->hasBoolop = false;
         }
     }
     if(traverseNode->is_terminal && traverseNode->term == sub_op) {
+        // It is Cool too
+        // lRHS and rRHS are boolean case not considered
         if(!assignmentTypeChecker->hasBoolop) {
             if(assignmentTypeChecker->rRHS == NULL) {
                 assignmentTypeChecker->hasASOop[0] = true;
@@ -437,23 +441,26 @@ do
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");
             assignmentTypeChecker->hasBoolop = false;
         }
     }
     if(traverseNode->is_terminal && traverseNode->term == mul_op) {
+
+        // Suppose lRHS is boolean and rRHS is NULL not Checked.
         if(assignmentTypeChecker->rRHS!=NULL && assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");          
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");          
         }
         assignmentTypeChecker->hasMDAop = true;
     }
     if(traverseNode->is_terminal && traverseNode->term == div_op) {
+        // Suppose lRHS is boolean and rRHS is NULL not Checked.
         if(assignmentTypeChecker->rRHS!=NULL && assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");          
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");          
         }
         assignmentTypeChecker->hasMDAop = true;
         assignmentTypeChecker->hasDivop = true;     
@@ -465,17 +472,18 @@ do
         }
         else
         {
-            if(assignmentTypeChecker->rRHS != NULL) {
+            if(assignmentTypeChecker->rRHS != NULL) { // Because rRHS is not NULL and BoolOp is false
                 currTypeExpression->dataType = _error;
                 currTypeExpression->typeName = calloc(1,13);
-                strcpy(currTypeExpression->typeName,"<type=error>");
+                strcpy(currTypeExpression->typeName,"<type=ERROR>");
             }
             else if(!(assignmentTypeChecker->lRHS->varType->dataType == _prim && assignmentTypeChecker->lRHS->varType->primType == _boolean)) {
                 currTypeExpression->dataType = _error;
                 currTypeExpression->typeName = calloc(1,13);
-                strcpy(currTypeExpression->typeName,"<type=error>");
+                strcpy(currTypeExpression->typeName,"<type=ERROR>");
             }         
             assignmentTypeChecker->hasBoolop = true;
+            // ASOP True kyu nahi kiya
         }       
     }
     if(traverseNode->is_terminal && traverseNode->term == and_op) {
@@ -484,13 +492,13 @@ do
         if(assignmentTypeChecker->rRHS != NULL && !(assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean)) {
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");
         }
         else if (assignmentTypeChecker->rRHS == NULL && !(assignmentTypeChecker->lRHS->varType->dataType == _prim && assignmentTypeChecker->lRHS->varType->primType == _boolean))
         {
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
-            strcpy(currTypeExpression->typeName,"<type=error>");
+            strcpy(currTypeExpression->typeName,"<type=ERROR>");
         }       
     }
     if(traverseNode->is_terminal && traverseNode->term == semicol && traverseNode->parent->non_term == ASSIGN_STATEMENT) {

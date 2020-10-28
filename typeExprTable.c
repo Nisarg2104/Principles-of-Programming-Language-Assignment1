@@ -157,6 +157,7 @@ bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* che
     }
     if(currVar == NULL) {
         temp->varType->dataType = _error;
+        temp->varType->typeName = calloc(1,13);
         strcpy(temp->varType->typeName,"<type=ERROR>");
     }
     addToLHS(temp,checker);

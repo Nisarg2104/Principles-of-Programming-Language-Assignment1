@@ -25,7 +25,7 @@ int main(){
     typeExpressionTable T=calloc(1,sizeof(type_expression_table));
     do{
         
-        printf("Please enter a choice(0-4): \n");
+        printf("Please enter a choice(0-5): \n");
         scanf("%d",&choice);
        
         switch(choice){
@@ -84,6 +84,17 @@ int main(){
                     
                 }
                 printTypeExpressionTable(T);
+                break;
+            case 5:
+                printf("Enter program file: \n");
+                scanf("%s",programname);
+                head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
+                tokeniseSourcecode(programname,head);
+                int choice;
+                fc[0] = 0;
+                fc[1] = 0;
+                t = calloc(1,sizeof(parseTree));
+                T=calloc(1,sizeof(type_expression_table));
                 break;
             default:
                 printf("Invalid choice!\n");

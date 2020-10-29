@@ -1,9 +1,7 @@
 #include "typeExprTable.h"
 
-int main(){
-    
-    char programname[201];
-
+int main(int argc, char* argv[]){    
+    char* programname = calloc(1,64);
     grammar G;
     G.grammar_rules = (cell_node*)calloc(NO_OF_RULES,sizeof(cell_node));
     for(int  i = 0;i<NO_OF_RULES;i++)
@@ -14,10 +12,16 @@ int main(){
     char grammarname[50] = "grammar.txt";
     readGrammar(grammarname,G.grammar_rules);
 
-
-    printf("Enter program file: \n");
-    scanf("%s",programname);
-    tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
+    if(argc == 1) {
+        printf("Enter program file: \n");
+        scanf("%s",programname);
+    }
+    else
+    {
+        programname = argv[1];
+    }
+    
+    tokenStream* head = (tokenStream*)calloc(1,sizeof(tokenStream));
     tokeniseSourcecode(programname,head);
     int choice;
     int fc[2] = {0,0};

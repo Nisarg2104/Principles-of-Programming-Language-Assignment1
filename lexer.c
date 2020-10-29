@@ -2,6 +2,10 @@
 
 void tokeniseSourcecode( char* filename, tokenStream *s) {
     FILE* code = fopen(filename,"r");
+    if(code == NULL) {
+        printf("File not found! \n");
+        exit(0);
+    }
     tokenStream *head = s;
     tokenStream* curr = head;
     char* BUF = (char*)calloc(200,1);

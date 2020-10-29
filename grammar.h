@@ -1,5 +1,4 @@
 #include "lexer.h"
-#include<stdbool.h>
 
 #define  NO_OF_RULES 100
 

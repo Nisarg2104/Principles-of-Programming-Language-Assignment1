@@ -109,9 +109,9 @@ char** initNonTerms() {
     FILE* non_terms = fopen("non_terminals.txt","r");
     char**tokens = calloc(43,sizeof(char*));
     int index = 0;
-    char BUF [MAX_VAR_NAME_LEN];
+    char* BUF = calloc(1,MAX_VAR_NAME_LEN);
     while(!feof(non_terms)) {
-        fgets(BUF,MAX_VAR_NAME_LEN+1,non_terms);
+        fgets(BUF,MAX_VAR_NAME_LEN,non_terms);
         tokens[index] = (char*)calloc(MAX_VAR_NAME_LEN,1);
         strcpy(tokens[index],strtok(BUF,","));
         index++;
@@ -332,6 +332,9 @@ void printParseTree(parseTree *t) {
                 isDeclare = false;
         }
         if(isDeclare && traverseNode->is_terminal && traverseNode->term == id && (traverseNode->parent->non_term == SINGLE_DECLARE || traverseNode->parent->non_term == MULT_ID)) {
+            printf("Type_Expr : %s\n", traverseNode->type->typeName);
+        }
+        if(!traverseNode->is_terminal && (traverseNode->non_term == TYPE || traverseNode->non_term == DECLARE_STATEMENT)) {
             printf("Type_Expr : %s\n", traverseNode->type->typeName);
         }
         printf("\n");

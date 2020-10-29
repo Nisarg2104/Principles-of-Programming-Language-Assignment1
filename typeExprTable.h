@@ -24,7 +24,7 @@ typedef struct {
     assignExpression* lhs;
     assignExpression* lRHS;
     assignExpression* rRHS;
-    bool hasDivop,hasBoolop,hasMDAop,hasASOop[2];
+    bool hasDivop,hasBoolop,hasMDAop,hasASOop[2],isAddop;
 } assignment_type_checker;
 
 stack* create_stack();

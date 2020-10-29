@@ -44,11 +44,11 @@ parseTree* pop(stack *s){
 void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type_checker* checker) {
     assignExpression* varToAdd = calloc(1,sizeof(assignExpression));
     varToAdd->varType = calloc(1,sizeof(typeExpression));
-    varToAdd->varName = calloc(1,256);
+    varToAdd->varName = calloc(1,128);
     strcpy(varToAdd->varName,var->varName);
     strcat(varToAdd->varName," [ ");
     for(int i=0;i<var->rangeNums;i++){
-        char* temp = calloc(1,7);
+        char* temp = calloc(1,6);
         sprintf(temp,"%d ",var->rangeToFound[i]);
         strcat(varToAdd->varName,temp);
         free(temp);
@@ -66,18 +66,21 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
     if(currVar == NULL) {
         varToAdd->varType->dataType = _error;
         varToAdd->varType->typeName = calloc(1,13);
+        // error type 0
         strcpy(varToAdd->varType->typeName,"<type=ERROR>");
     }
     else
     {
         if(currVar->type->dimensions != var->rangeNums) {
             varToAdd->varType->dataType = _error;
+            // error type 3 or 2
             varToAdd->varType->typeName = calloc(1,13);
             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
         }
         else {
             if(isalnum(currVar->type->range_R1[0][0]) && !isalpha(currVar->type->range_R1[0][0])) {
                 if(var->rangeToFound[0] != -1 && var->rangeToFound[0] < atoi(currVar->type->range_R1[0])){
+                    // error type 8
                     varToAdd->varType->dataType = _error;
                     varToAdd->varType->typeName = calloc(1,13);
                     strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -85,6 +88,7 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
             }
             if(isalnum(currVar->type->range_R1[1][0]) && !isalpha(currVar->type->range_R1[1][0])) {
                 if(var->rangeToFound[0] != -1 && var->rangeToFound[0] > atoi(currVar->type->range_R1[1])){
+                    // error type 8
                     varToAdd->varType->dataType = _error;
                     varToAdd->varType->typeName = calloc(1,13);
                     strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -100,6 +104,7 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
                    {
                        if(isalnum(curr->range[0][0]) && !isalpha(curr->range[0][0])) {
                          if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
+                             // error type 8
                                varToAdd->varType->dataType = _error;
                                 varToAdd->varType->typeName = calloc(1,13);
                                 strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -107,7 +112,8 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
                        }
                        if(isalnum(curr->range[1][0]) && !isalpha(curr->range[1][0])) {
                             if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
-                                varToAdd->varType->dataType = _error;
+                                // error type 8
+                              varToAdd->varType->dataType = _error;
                               varToAdd->varType->typeName = calloc(1,13);
                               strcpy(varToAdd->varType->typeName,"<type=ERROR>");
                          }
@@ -121,6 +127,7 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
             {
                 if(currVar->type->dimensions == 2) {
                     if(var->rangeToFound[1] < 0 || var->rangeToFound[1] >= currVar->type->tdJaggedArrayRange.ranges[var->rangeToFound[0]-currVar->type->low][0]) {
+                        // error type 5
                         varToAdd->varType->dataType = _error;
                         varToAdd->varType->typeName = calloc(1,13);
                         strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -128,6 +135,7 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
                 }
                 else {
                     if(var->rangeToFound[1] < 0 || var->rangeToFound[1] >= currVar->type->thdJaggedArrayRange.subRanges[var->rangeToFound[0]-currVar->type->low].subRangeCount || var->rangeToFound[2] < 0 || var->rangeToFound[2] >= currVar->type->thdJaggedArrayRange.subRanges[var->rangeToFound[0]-currVar->type->low].subSubRanges[var->rangeToFound[1]]) {
+                        // error type 6 or 7
                         varToAdd->varType->dataType = _error;
                         varToAdd->varType->typeName = calloc(1,13);
                         strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -168,6 +176,7 @@ bool initLHSAssign(char* id, typeExpressionTable T, assignment_type_checker* che
         currVar = currVar->next;
     }
     if(currVar == NULL) {
+        // error type 0
         temp->varType->dataType = _error;
         temp->varType->typeName = calloc(1,13);
         strcpy(temp->varType->typeName,"<type=ERROR>");
@@ -212,6 +221,7 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
         }
         expr1->varType->dataType = _error;
         expr1->varType->typeName = calloc(1,13);
+        //error 10
         strcpy(expr1->varType->typeName,"<type=ERROR>");
         return false;
     }
@@ -220,6 +230,7 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
         if((expr1->varType->dataType == _prim && expr1->varType->primType == _boolean) || (expr2->varType->dataType == _prim && expr2->varType->primType == _boolean)) {
             expr1->varType->dataType = _error;
             expr1->varType->typeName = calloc(1,13);
+            //error 4
             strcpy(expr1->varType->typeName,"<type=ERROR>");
             free(expr2);
             return false;
@@ -240,7 +251,9 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
                 strcpy(expr1->varType->typeName,"<type=real>");
             }
             else
-            {
+            {        // printf("5. Run Another File\n");
+
+                //error 11
                 expr1->varType->dataType = _error;
                 strcpy(expr1->varType->typeName,"<type=ERROR>");
             }
@@ -265,6 +278,7 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
         return true;
     }
     else{
+        //error 2
         expr1->varType->dataType = _error;
         strcpy(expr1->varType->typeName,"<type=ERROR>");
     }
@@ -287,6 +301,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
         currVar = currVar->next;
     }
     if(currVar == NULL) {
+        //error 0
         varToAdd->varType->dataType = _error;
         varToAdd->varType->typeName = calloc(1,13);
         strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -296,6 +311,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
         if(currVar->type->dimensions != var->rangeNums) {
             varToAdd->varType->dataType = _error;
             varToAdd->varType->typeName = calloc(1,13);
+            //error 3
             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
         }
         else {
@@ -303,11 +319,13 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
                 if(var->rangeToFound[0] != -1 && var->rangeToFound[0] < atoi(currVar->type->range_R1[0])){
                     varToAdd->varType->dataType = _error;
                     varToAdd->varType->typeName = calloc(1,13);
+                    //error 8
                     strcpy(varToAdd->varType->typeName,"<type=ERROR>");
                 }
             }
             if(isalnum(currVar->type->range_R1[1][0]) && !isalpha(currVar->type->range_R1[1][0])) {
                 if(var->rangeToFound[0] != -1 && var->rangeToFound[0] > atoi(currVar->type->range_R1[1])){
+                    //error 8
                     varToAdd->varType->dataType = _error;
                     varToAdd->varType->typeName = calloc(1,13);
                     strcpy(varToAdd->varType->typeName,"<type=ERROR>");
@@ -323,6 +341,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
                         if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
                             varToAdd->varType->dataType = _error;
                             varToAdd->varType->typeName = calloc(1,13);
+                            //error 8
                             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
                         }
                     }
@@ -330,6 +349,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
                         if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
                             varToAdd->varType->dataType = _error;
                             varToAdd->varType->typeName = calloc(1,13);
+                            //error 8
                             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
                         }
                     }
@@ -374,6 +394,7 @@ bool initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, i
         if(currVar == NULL) {
             varToAdd->varType->dataType = _error;
             varToAdd->varType->typeName = calloc(1,13);
+            //error 0
             strcpy(varToAdd->varType->typeName,"<type=ERROR>");
         }
         addTermToRHS(varToAdd,checker);
@@ -392,12 +413,22 @@ bool initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, i
         tempAssExpr->varType = temp;
         tempAssExpr->rangeNums = 0;
         tempAssExpr->rangeToFound = NULL;
-        tempAssExpr->varName = NULL;
+        tempAssExpr->varName = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(tempAssExpr->varName,id);
         addTermToRHS(tempAssExpr,checker);
         return true;
     }
 }
+printErrorType(type_error* currError)
+{
+    switch(currError->errorType)
+    {
+        
 
+        default:
+            printf("Line %d is error free",currError->linenum);
+    }
+}
 bool addTermToRHS(assignExpression* incomingVar, assignment_type_checker* checker) {
 
     
@@ -554,6 +585,7 @@ void traverseParseTree(parseTree *t, typeExpressionTable T) {
     typeExpression* currTypeExpression;
     assignExpression* varToAdd = NULL;
     assignment_type_checker* assignmentTypeChecker = NULL;
+    typeError = NULL;
     int* arrayCheck = NULL;
     bool isMultID = false;
     bool isAssignStatement = false;
@@ -565,7 +597,13 @@ do
         currTypeExpression = traverseNode->type;    //init new type expr
         if(arrayCheck!=NULL)
             free(arrayCheck);
+        if(typeError!=NULL)
+            free(typeError);
         arrayCheck = NULL;
+        typeError = calloc(1,sizeof(type_error));
+        typeError->statementType = DECLARE;
+        typeError->depth = traverseNode->depth;
+        typeError->errorType = -1;
         isMultID = false;
     }
     
@@ -586,6 +624,12 @@ do
         assignmentTypeChecker->rRHS = NULL;
         assignmentTypeChecker->lRHS = NULL;
         currTypeExpression = calloc(1,sizeof(dataType));    //init new type expr
+        if(typeError!=NULL)
+            free(typeError);
+        typeError = calloc(1,sizeof(type_error));
+        typeError->statementType = ASSIGNMENT;
+        typeError->depth = traverseNode->depth;
+        typeError->errorType = -1;
         if(arrayCheck!=NULL)
             free(arrayCheck);
         arrayCheck = NULL;
@@ -598,9 +642,13 @@ do
             bool added = initLHSAssign(traverseNode->lexeme,T,assignmentTypeChecker);
             assignmentTypeChecker->linenum = traverseNode->linenum;
             if(assignmentTypeChecker->lhs->varType->dataType == _error) {
-                printf("Type error at line %d, ", traverseNode->linenum);
-                added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
-                currTypeExpression = assignmentTypeChecker->lhs->varType;
+                typeError->linenum = traverseNode->linenum;
+                typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.firstLexeme,traverseNode->lexeme);
+                // TODO make and call displayError fn
+                // printf("Type error at line %d, ", traverseNode->linenum);
+                // added?printf("variable %s has erroneous type\n",traverseNode->lexeme):printf("variable %s not found\n",traverseNode->lexeme);
+                // currTypeExpression = assignmentTypeChecker->lhs->varType;
             }
         }
         else {
@@ -681,6 +729,7 @@ do
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
+            // error 2
             strcpy(currTypeExpression->typeName,"<type=ERROR>");
         }
     }
@@ -705,6 +754,7 @@ do
             computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker);
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
+            //
             currTypeExpression->typeName = calloc(1,13);
             strcpy(currTypeExpression->typeName,"<type=ERROR>");
             assignmentTypeChecker->hasBoolop = false;

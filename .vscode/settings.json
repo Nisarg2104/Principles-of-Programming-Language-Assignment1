@@ -2,6 +2,7 @@
     "files.associations": {
         "*.txt": "c",
         "random": "c",
-        "array": "c"
+        "array": "c",
+        "limits": "cpp"
     }
 }

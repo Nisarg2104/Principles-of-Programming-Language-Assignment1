@@ -1,8 +1,8 @@
 #!/bin/sh
-program = $1
+program=$1
 make -f makefile
 
-if($1)
+if([ -z "$program" ])
 then ./compiler $program
 else ./compiler
 fi

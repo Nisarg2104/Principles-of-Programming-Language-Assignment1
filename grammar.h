@@ -69,6 +69,7 @@ typedef struct{
     int high;
     int low;
     int linenum;
+    int errorType;
     union {        
         rect_array_ranges* rectArrayRanges;
         tdJArrRange tdJaggedArrayRange;

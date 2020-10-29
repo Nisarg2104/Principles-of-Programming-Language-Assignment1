@@ -11,6 +11,9 @@ typedef struct{
 typedef enum {
     hasDivOp, isLHSReal, isAllBoolVar, hasAllBoolOp, hasRHSreal
 } assignment_flags;
+typedef enum {
+        ASSIGNMENT, DECLARE
+    } statement_type;
 // id [ x y z ]
 typedef struct {
     typeExpression* varType;
@@ -18,6 +21,44 @@ typedef struct {
     int* rangeToFound;
     int rangeNums;
 } assignExpression;
+
+typedef struct {
+    char* lexeme;
+} declare_error;
+typedef struct {
+    char* firstLexeme;
+    char* firstType;
+    char* secondLexeme;
+    char* secondType;
+    char* operator;
+} assign_error;
+
+typedef struct {
+    statement_type statementType;
+    int linenum;
+    int depth;
+    int errorType;
+    char* errorMsg;
+    union 
+    {
+        declare_error declareError;
+        assign_error assignError;
+    };
+} type_error;
+
+type_error* typeError;
+// 0 -> var not found
+// 1 -> error data type
+// 2 -> type not match
+// 3 -> dim not match
+// 4 -> operator mismatch
+// 5 -> 2d sub range not match
+// 6 -> 3d sub range not match
+// 7 -> 3d sub sub range not match
+// 8 -> Index Out of Bounds
+// 9 -> extra sub elem in 2d
+// 10 -> bool op and non bool operand
+// 11-> non valid opearnd with div
 
 typedef struct {
     int linenum;

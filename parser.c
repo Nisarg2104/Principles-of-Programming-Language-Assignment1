@@ -159,6 +159,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
 
         if(!traverseNode->is_terminal && traverseNode->non_term == DECLARE_STATEMENT && traverseNode->type ==NULL) {
             currTypeExpr = calloc(1,sizeof(typeExpression));
+            currTypeExpr->errorType = -1;
             // currTypeExpr->linenum = s->line_num;
             traverseNode->type = currTypeExpr;
         }
@@ -177,6 +178,9 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
         {
             printf("%s %d \n",s->lexeme,temp.non_term);
             currlinenum = s->line_num;
+            if(s->token_name = num && temp.non_term == INT_LIST_DASH) {
+                traverseNode->type->errorType = 9;
+            }
             printf("Type definition error at line %d\n",currlinenum);
             traverseNode->type->dataType = _error;
             traverseNode->type->linenum = currlinenum;
@@ -300,7 +304,6 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
 
         if(flag)
         {
-            // printf("Fuckin Error\n");
             break;
         }     
     }

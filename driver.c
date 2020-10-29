@@ -28,8 +28,12 @@ int main(int argc, char* argv[]){
     parseTree *t = calloc(1,sizeof(parseTree));
     typeExpressionTable T=calloc(1,sizeof(type_expression_table));
     do{
-        
-        printf("Please enter a choice(0-5): \n");
+        printf("1. Create Parse Tree for the Code\n");
+        printf("2. Traverse Parse Tree for the Code\n");
+        printf("3. Print Parse Tree for the Code\n");
+        printf("4. Print Type Expression Table for the Code\n");
+        printf("0. Quit Compiler\n");
+        printf("Please enter a choice(0-4): \n");
         scanf("%d",&choice);
        
         switch(choice){
@@ -88,17 +92,6 @@ int main(int argc, char* argv[]){
                     
                 }
                 printTypeExpressionTable(T);
-                break;
-            case 5:
-                printf("Enter program file: \n");
-                scanf("%s",programname);
-                head = (tokenStream*)calloc(1,sizeof(tokenStream)); 
-                tokeniseSourcecode(programname,head);
-                int choice;
-                fc[0] = 0;
-                fc[1] = 0;
-                t = calloc(1,sizeof(parseTree));
-                T=calloc(1,sizeof(type_expression_table));
                 break;
             default:
                 printf("Invalid choice!\n");

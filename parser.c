@@ -176,7 +176,9 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
          
         if(ruleNum == -1)
         {
-            printf("%s %d \n",s->lexeme,temp.non_term);
+            if(temp.non_term == PROGRAM && s->token_name == cb_cl)
+                break;
+            // printf("%s %d \n",s->lexeme,temp.non_term);
             currlinenum = s->line_num;
             if(s->token_name = num && temp.non_term == INT_LIST_DASH) {
                 traverseNode->type->errorType = 9;
@@ -262,7 +264,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             }
             else if(traverseNode->term != eps)
             {
-                printf("%s %d\n",s->lexeme,traverseNode->term);
+                // printf("%s %d\n",s->lexeme,traverseNode->term);
                 flag = 1;
                 break;
             }
@@ -307,7 +309,7 @@ void createParseTree(parseTree *t, tokenStream *s, grammar G) {
             break;
         }     
     }
-    assert(s == NULL);
+    // assert(s == NULL);
     // printf("YAAYYY !!!\n");
     // printParseTree(t);
     

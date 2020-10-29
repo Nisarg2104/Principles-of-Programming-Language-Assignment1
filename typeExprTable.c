@@ -213,10 +213,18 @@ bool addToLHS(assignExpression* var, assignment_type_checker* checker) {
 
 bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, assignment_type_checker* checker) {
     if(expr1->varType->dataType == _error) {
+        typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.firstLexeme,expr1->varName);
+        typeError->errorType = 1;
+        printErrorType(typeError);
+        typeError->errorType = -1;
+        strcpy(expr1->varType->typeName,"<type=ERROR>");
         free(expr2);
         return false;
     }
     if(expr2->varType->dataType == _error) {
+        typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.firstLexeme,expr2->varName);
         typeError->errorType = 1;
         printErrorType(typeError);
         typeError->errorType = -1;
@@ -244,7 +252,17 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
         }
         expr1->varType->dataType = _error;
         expr1->varType->typeName = calloc(1,13);
-        typeError->errorType = 10;
+        typeError->errorType = 4;
+        typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.firstLexeme,expr1->varName);
+        typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.secondLexeme,expr2->varName);
+        typeError->assignError.firstType = calloc(1,256);
+        strcpy(typeError->assignError.firstType,expr1->varType->typeName);
+        typeError->assignError.secondType = calloc(1,256);
+        strcpy(typeError->assignError.secondType,expr2->varType->typeName);
+        typeError->assignError.operator = calloc(1,4);
+        strcpy(typeError->assignError.operator,checker->hasMDAop?"&&&":"|||");
         printErrorType(typeError);
         typeError->errorType = -1;
         strcpy(expr1->varType->typeName,"<type=ERROR>");
@@ -256,6 +274,16 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
             expr1->varType->dataType = _error;
             expr1->varType->typeName = calloc(1,13);
             typeError->errorType = 4;
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,expr1->varName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,expr2->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,expr1->varType->typeName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,expr2->varType->typeName);
+            typeError->assignError.operator = calloc(1,4);
+            strcpy(typeError->assignError.operator,checker->hasMDAop?checker->hasDivop?"/":"*":checker->isAddop?"+":"-");
             printErrorType(typeError);
             typeError->errorType = -1;
             strcpy(expr1->varType->typeName,"<type=ERROR>");
@@ -279,7 +307,15 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
             }
             else
             {       
-                typeError->errorType = 11;
+                typeError->errorType = 4;
+                typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.firstLexeme,expr1->varName);
+                typeError->assignError.firstType = calloc(1,256);
+                strcpy(typeError->assignError.firstType,expr1->varType->typeName);
+                typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.secondLexeme,expr2->varName);
+                typeError->assignError.secondType = calloc(1,256);
+                strcpy(typeError->assignError.secondType,expr2->varType->typeName);
                 printErrorType(typeError);
                 typeError->errorType = -1;
                 expr1->varType->dataType = _error;
@@ -307,6 +343,14 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, as
     }
     else{
         typeError->errorType = 2;
+        typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.firstLexeme,expr1->varName);
+        typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+        strcpy(typeError->assignError.secondLexeme,expr2->varName);
+        typeError->assignError.firstType = calloc(1,256);
+        strcpy(typeError->assignError.firstType,expr1->varType->typeName);
+        typeError->assignError.secondType = calloc(1,256);
+        strcpy(typeError->assignError.secondType,expr2->varType->typeName);
         printErrorType(typeError);
         typeError->errorType = -1;
         expr1->varType->dataType = _error;
@@ -453,7 +497,7 @@ bool initRHS(char* id,typeExpressionTable T, assignment_type_checker* checker, i
         
         typeExpression* temp = calloc(1,sizeof(typeExpression));
         for(int i=0;i<strlen(id);i++) {
-            if(id[i] < '0' || id[i] > 9) {
+            if(id[i] < '0' || id[i] > '9') {
                 temp->dataType = _error;
                 temp->typeName = calloc(1,13);
                 strcpy(temp->typeName,"<type=ERROR>");
@@ -489,13 +533,13 @@ void printErrorType(type_error* currError)
     {	
 		case 0 : sprintf(typeError->errorMsg,"Variable %s not found",currError->assignError.firstLexeme);
 				 break;
-		case 1 : strcpy(typeError->errorMsg,"Errenous data type");
+		case 1 : strcpy(typeError->errorMsg,"Erroneous data type");
 				 break;
-		case 2 : strcpy(typeError->errorMsg,"Type mismatch between operands");
+		case 2 : sprintf(typeError->errorMsg,"Type mismatch between operands %s and %s",currError->assignError.firstLexeme,currError->assignError.secondLexeme);
 				 break;
 		case 3 : strcpy(typeError->errorMsg,"Dimensions mismatch");
 				 break;
-		case 4 : strcpy(typeError->errorMsg,"Operator mismatch");
+		case 4 : sprintf(typeError->errorMsg,"Operator mismatch, l-> %s, r-> %s, op -> %s",currError->assignError.firstLexeme,currError->assignError.secondLexeme,currError->assignError.operator);
 				 break;
 		case 5 : strcpy(typeError->errorMsg,"Sub range of 2D array doesn't match");
 				 break;
@@ -820,12 +864,22 @@ do
         else
         {
             // It is fine
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
+            typeError->assignError.secondType = calloc(1,4);
+            strcpy(typeError->assignError.operator,"+");
             computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker);
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
             currTypeExpression->typeName = calloc(1,13);
             typeError->errorType = 4;
-            printErrorType(typeError);
+            // printErrorType(typeError);
             typeError->errorType = -1;
             strcpy(currTypeExpression->typeName,"<type=ERROR>");
         }
@@ -848,11 +902,21 @@ do
         }
         else
         {
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
+            typeError->assignError.secondType = calloc(1,4);
+            strcpy(typeError->assignError.operator,"-");
             computeTypeExprSummary(assignmentTypeChecker->lRHS,assignmentTypeChecker->rRHS,assignmentTypeChecker);
             assignmentTypeChecker->rRHS = NULL;
             currTypeExpression->dataType = _error;
             typeError->errorType = 4;
-            printErrorType(typeError);
+            // printErrorType(typeError);
             typeError->errorType = -1;
             currTypeExpression->typeName = calloc(1,13);
             strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -865,7 +929,17 @@ do
         if(assignmentTypeChecker->rRHS!=NULL && assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
             currTypeExpression->dataType = _error;
             typeError->errorType = 4;
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
             printErrorType(typeError);
+            typeError->assignError.secondType = calloc(1,4);
+            strcpy(typeError->assignError.operator,"*");
             typeError->errorType = -1;
             currTypeExpression->typeName = calloc(1,13);
             strcpy(currTypeExpression->typeName,"<type=ERROR>");          
@@ -877,7 +951,17 @@ do
         if(assignmentTypeChecker->rRHS!=NULL && assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean) {
             currTypeExpression->dataType = _error;
             typeError->errorType = 4;
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
             printErrorType(typeError);
+            typeError->assignError.secondType = calloc(1,4);
+            strcpy(typeError->assignError.operator,"/");
             typeError->errorType = -1;
             currTypeExpression->typeName = calloc(1,13);
             strcpy(currTypeExpression->typeName,"<type=ERROR>");          
@@ -895,7 +979,17 @@ do
             if(assignmentTypeChecker->rRHS != NULL) { // Because rRHS is not NULL and BoolOp is false
                 currTypeExpression->dataType = _error;
                 typeError->errorType = 4;
+                typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+                typeError->assignError.firstType = calloc(1,256);
+                strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+                typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+                typeError->assignError.secondType = calloc(1,256);
+                strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
                 printErrorType(typeError);
+                typeError->assignError.secondType = calloc(1,4);
+                strcpy(typeError->assignError.operator,"|||");
                 typeError->errorType = -1;
                 currTypeExpression->typeName = calloc(1,13);
                 strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -905,6 +999,11 @@ do
                 currTypeExpression->typeName = calloc(1,13);
                 strcpy(currTypeExpression->typeName,"<type=ERROR>");
                 typeError->errorType = 4;
+                typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+                strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+                typeError->assignError.firstType = calloc(1,256);
+                strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+                strcpy(typeError->assignError.operator,"|||");
                 printErrorType(typeError);
                 typeError->errorType = -1;
             }         
@@ -918,6 +1017,16 @@ do
         if(assignmentTypeChecker->rRHS != NULL && !(assignmentTypeChecker->rRHS->varType->dataType == _prim && assignmentTypeChecker->rRHS->varType->primType == _boolean)) {
             currTypeExpression->dataType = _error;
             typeError->errorType = 4;
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            typeError->assignError.secondLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.secondLexeme,assignmentTypeChecker->rRHS->varName);
+            typeError->assignError.secondType = calloc(1,256);
+            strcpy(typeError->assignError.secondType,assignmentTypeChecker->rRHS->varType->typeName);
+            typeError->assignError.secondType = calloc(1,4);
+            strcpy(typeError->assignError.operator,"&&&");
             printErrorType(typeError);
             typeError->errorType = -1;
             currTypeExpression->typeName = calloc(1,13);
@@ -926,8 +1035,12 @@ do
         else if (assignmentTypeChecker->rRHS == NULL && !(assignmentTypeChecker->lRHS->varType->dataType == _prim && assignmentTypeChecker->lRHS->varType->primType == _boolean))
         {
             currTypeExpression->dataType = _error;
-            typeError->errorType = 2;
-            printErrorType(typeError);
+            typeError->errorType = 4;
+            typeError->assignError.firstLexeme = calloc(1,MAX_VAR_NAME_LEN);
+            strcpy(typeError->assignError.firstLexeme,assignmentTypeChecker->lRHS->varName);
+            typeError->assignError.firstType = calloc(1,256);
+            strcpy(typeError->assignError.firstType,assignmentTypeChecker->lRHS->varType->typeName);
+            // printErrorType(typeError);
             typeError->errorType = -1;
             currTypeExpression->typeName = calloc(1,13);
             strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -1105,10 +1218,11 @@ do
 
         if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS ) {
             if(currTypeExpression->dataType!=_error && currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1] ){
-                printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
+                //printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
                 currTypeExpression->dataType = _error;
                 currTypeExpression->typeName = calloc(1,13);
                 typeError->errorType = 5;
+                typeError->linenum = traverseNode->linenum;
                 printErrorType(typeError);
                 typeError->errorType = -1;
                 strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -1192,6 +1306,7 @@ do
                 currTypeExpression->dataType = _error;
                 currTypeExpression->typeName = calloc(1,13);
                 typeError->errorType = 7;
+                typeError->linenum = traverseNode->linenum;
                 printErrorType(typeError);
                 typeError->errorType = -1;                
                 strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -1207,6 +1322,7 @@ do
                     currTypeExpression->dataType = _error;
                     currTypeExpression->typeName = calloc(1,13);
                     typeError->errorType = 7;
+                    typeError->linenum = traverseNode->linenum;
                     printErrorType(typeError);
                     typeError->errorType = -1;
                     strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -1217,6 +1333,7 @@ do
                     currTypeExpression->dataType = _error;
                     currTypeExpression->typeName = calloc(1,13);
                     typeError->errorType = 7;
+                    typeError->linenum = traverseNode->linenum;
                     printErrorType(typeError);
                     typeError->errorType = -1;
                     strcpy(currTypeExpression->typeName,"<type=ERROR>");
@@ -1319,9 +1436,10 @@ void printTypeExpressionTable (typeExpressionTable T){
     while (currVariable!=NULL)
     {
         if(currVariable->type!=NULL)
-            printf("%s %s ",currVariable->varName, currVariable->type->typeName);
-            if(currVariable->type->dataType == _error) {
-                printf("Type definition error at Line No. : %d",currVariable->type->linenum);
+            if(currVariable->type->dataType!=_error)
+                printf("%-20s%-4d%-20s%s",currVariable->varName,currVariable->type->dataType, currVariable->type->arrayType == 0?"static":currVariable->type->arrayType == 1?"dynamic":"not_applicable", currVariable->type->typeName);
+            else {
+                printf("%-44s%s\tType definition error at Line No. : %d",currVariable->varName,currVariable->type->typeName,currVariable->type->linenum);
             }
             printf("\n");
         currVariable = currVariable->next;

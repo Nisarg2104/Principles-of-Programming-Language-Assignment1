@@ -2,10 +2,6 @@
 
 void tokeniseSourcecode( char* filename, tokenStream *s) {
     FILE* code = fopen(filename,"r");
-    if(code == NULL) {
-        printf("File not found! \n");
-        exit(0);
-    }
     tokenStream *head = s;
     tokenStream* curr = head;
     char* BUF = (char*)calloc(200,1);
@@ -13,6 +9,7 @@ void tokeniseSourcecode( char* filename, tokenStream *s) {
     while(!feof(code)){
         linenum++;
         fgets(BUF,200,code);
+        if(strlen(BUF)==0) continue;
         char *token;
         token = strtok(BUF, " \t\r\n");
 

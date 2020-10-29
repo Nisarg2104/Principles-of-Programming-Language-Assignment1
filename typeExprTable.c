@@ -84,25 +84,29 @@ void initComplexLHS(assignExpression* var,typeExpressionTable T, assignment_type
             }
             int i=1;
             if(currVar->type->dataType == _array) {
-                rect_array* curr = currVar->type->rectArrayRanges->first;
-                while (curr!=NULL)
-                {
-                    if(isalnum(curr->range[0][0]) && !isalpha(curr->range[0][0])) {
-                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
-                            varToAdd->varType->dataType = _error;
-                            varToAdd->varType->typeName = calloc(1,13);
-                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
-                        }
+                if(currVar->type->rectArrayRanges!=NULL){
+                    
+                
+                 rect_array* curr = currVar->type->rectArrayRanges->first;
+                 while (curr!=NULL)
+                   {
+                       if(isalnum(curr->range[0][0]) && !isalpha(curr->range[0][0])) {
+                         if(var->rangeToFound[i] != -1 && var->rangeToFound[i] < atoi(curr->range[0])){
+                               varToAdd->varType->dataType = _error;
+                                varToAdd->varType->typeName = calloc(1,13);
+                                strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                          }
+                       }
+                       if(isalnum(curr->range[1][0]) && !isalpha(curr->range[1][0])) {
+                            if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
+                                varToAdd->varType->dataType = _error;
+                              varToAdd->varType->typeName = calloc(1,13);
+                              strcpy(varToAdd->varType->typeName,"<type=ERROR>");
+                         }
+                     }
+                       curr = curr->next;
+                       i++;
                     }
-                    if(isalnum(curr->range[1][0]) && !isalpha(curr->range[1][0])) {
-                        if(var->rangeToFound[i] != -1 && var->rangeToFound[i] > atoi(curr->range[1])){
-                            varToAdd->varType->dataType = _error;
-                            varToAdd->varType->typeName = calloc(1,13);
-                            strcpy(varToAdd->varType->typeName,"<type=ERROR>");
-                        }
-                    }
-                    curr = curr->next;
-                    i++;
                 }
             }
             else
@@ -278,6 +282,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
             }
             int i=1;
             if(currVar->type->dataType == _array) {
+                if(currVar->type->rectArrayRanges!=NULL){
                 rect_array* curr = currVar->type->rectArrayRanges->first;
                 while (curr!=NULL)
                 {
@@ -297,6 +302,7 @@ void initComplexRHS(assignExpression* var, typeExpressionTable T, assignment_typ
                     }
                     curr = curr->next;
                     i++;
+                }
                 }
             }
         }

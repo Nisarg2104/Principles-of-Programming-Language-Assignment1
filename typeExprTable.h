@@ -57,8 +57,6 @@ type_error* typeError;
 // 7 -> 3d sub sub range not match
 // 8 -> Index Out of Bounds
 // 9 -> extra sub elem in 2d
-// 10 -> bool op and non bool operand
-// 11-> non valid opearnd with div
 
 typedef struct {
     int linenum;
@@ -75,3 +73,4 @@ void push(stack* s,parseTree* r);
 parseTree* pop(stack *s);
 
 void printTypeExpressionTable (typeExpressionTable T);
+void printErrorType(type_error*);

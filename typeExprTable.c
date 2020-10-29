@@ -222,6 +222,10 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, bo
         free(expr2);
         return true;
     }
+    else{
+        expr1->varType->dataType = _error;
+        strcpy(expr1->varType->typeName,"<type=ERROR>");
+    }
     if(!(expr1->varType->dataType == _prim && expr1->varType->primType == _real) && !(expr2->varType->dataType == _prim && expr2->varType->primType == _real) ) {
         expr1->varType->primType = _real;
         strcpy(expr1->varType->typeName,"<type=integer>");

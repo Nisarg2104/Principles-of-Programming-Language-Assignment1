@@ -210,7 +210,7 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, bo
     
 
     if(!strcmp(expr1->varType->typeName,expr2->varType->typeName)) {
-        // TODO pass only if type is int or real
+        
         if(isDivop) {
             if(expr1->varType->dataType == _prim && expr2->varType->dataType == _prim && ((expr1->varType->primType == _real && expr2->varType->primType == _real) || (expr1->varType->primType == _integer && expr2->varType->primType == _integer))) {
                 expr1->varType->primType = _real;
@@ -230,11 +230,11 @@ bool computeTypeExprSummary(assignExpression* expr1, assignExpression* expr2, bo
         expr1->varType->dataType = _error;
         strcpy(expr1->varType->typeName,"<type=ERROR>");
     }
-    if(!(expr1->varType->dataType == _prim && expr1->varType->primType == _real) && !(expr2->varType->dataType == _prim && expr2->varType->primType == _real) ) {
-        expr1->varType->primType = _real;
-        strcpy(expr1->varType->typeName,"<type=integer>");
-        return true;
-    }
+    // if(!(expr1->varType->dataType == _prim && expr1->varType->primType == _real) && !(expr2->varType->dataType == _prim && expr2->varType->primType == _real) ) {
+    //     expr1->varType->primType = _real;
+    //     strcpy(expr1->varType->typeName,"<type=integer>");
+    //     return true;
+    // }
 
     return false;
 }
@@ -898,8 +898,8 @@ do
             currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]++;
         }
 
-        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS && currTypeExpression->dataType!=_error) {
-            if(currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]){
+        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == TD_VALS ) {
+            if(currTypeExpression->dataType!=_error && currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0] != currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1] ){
                 printf("%d %d\n",currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][0],currTypeExpression->tdJaggedArrayRange.ranges[currTypeExpression->tdJaggedArrayRange.index][1]);
                 currTypeExpression->dataType = _error;
                 printf("Type definition error at line %d, sub-range does not match in 2D jagged array\n", traverseNode->linenum);
@@ -965,17 +965,19 @@ do
             }
         }
 
-        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS && currTypeExpression->dataType != _error) {
+        if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->parent->non_term == THD_VALS ) {
             currTypeExpression->thdJaggedArrayRange.index++;
-            if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
-                currTypeExpression->dataType = _error;
-                printf("Type definition error at line %d, sub-sub-range size does not match in 3D jagged array\n ", traverseNode->linenum);
-                currTypeExpression->linenum = traverseNode->linenum;
-            }
-            if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index] == 0) {
-                currTypeExpression->dataType = _error;
-                printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
-                currTypeExpression->linenum = traverseNode->linenum;
+            if(currTypeExpression->dataType != _error){
+                if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subRangeCount != currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index + 1) {
+                    currTypeExpression->dataType = _error;
+                    printf("Type definition error at line %d, sub-sub-range size does not match in 3D jagged array\n ", traverseNode->linenum);
+                    currTypeExpression->linenum = traverseNode->linenum;
+                }
+                if(currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].subSubRanges[currTypeExpression->thdJaggedArrayRange.subRanges[currTypeExpression->thdJaggedArrayRange.index-1].index] == 0) {
+                    currTypeExpression->dataType = _error;
+                    printf("Type definition erorr at line %d, sub-sub-range size cannot be zero\n",traverseNode->linenum);
+                    currTypeExpression->linenum = traverseNode->linenum;
+                }
             }
         }
         if(traverseNode->is_terminal && traverseNode->term == cb_cl && traverseNode->right_sibling!=NULL && !traverseNode->right_sibling->is_terminal) {
@@ -986,8 +988,8 @@ do
                     } 
                 }
                 if(traverseNode->right_sibling->non_term == THD_VALS_DASH) {
-                    if(currTypeExpression->high-currTypeExpression->low+1> currTypeExpression->thdJaggedArrayRange.index) {
-                        printf("Type definition error at line %d, sub-range size does not match in 3D jagged array\n", traverseNode->linenum);
+                    if(currTypeExpression->high-currTypeExpression->low+1 > currTypeExpression->thdJaggedArrayRange.index) {
+                        printf("Type definition error at line %d, sub-range size does not match in 3D jagged array %d %d\n", traverseNode->linenum,currTypeExpression->high-currTypeExpression->low+1, currTypeExpression->thdJaggedArrayRange.index);
                     } 
                 }
             }
